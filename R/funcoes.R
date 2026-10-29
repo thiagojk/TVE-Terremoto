@@ -32,42 +32,60 @@ block_max <- function(d,months=12) {
   ans <- do.call(rbind,lapply(split(d,k),function(z) z[order(-z$Magnitude,z$timestamp,z$ID)[1],]))
   ans$bloco <- rownames(ans); rownames(ans)<-NULL; ans
 }
-fe_load <- function() {
-  idx <- scan('data/raw/fe/quadsidx.asc',quiet=TRUE); names <- readLines('data/raw/fe/names.asc')
-  quads <- c('ne','nw','se','sw'); ans <- list(names=trimws(names))
-  for(i in 1:4) {
-    n <- idx[((i-1)*91+1):(i*91)]
-    v <- matrix(scan(paste0('data/raw/fe/',quads[i],'sect.asc'),quiet=TRUE),ncol=2,byrow=TRUE)
-    ans[[quads[i]]] <- list(n=n,start=c(1,head(cumsum(n),-1)+1),v=v)
-  };ans
+# Momentos centrais empíricos (divisor n), sem correção de viés.
+shape_moments <- function(x) {
+  x <- x[is.finite(x)]
+  m2 <- mean((x-mean(x))^2)
+  c(assimetria=mean((x-mean(x))^3)/m2^(3/2),
+    excesso_curtose=mean((x-mean(x))^4)/m2^2-3)
 }
-fe_number <- function(lon,lat,fe) {
-  lon[lon== -180] <- 180
-  vapply(seq_along(lon),function(i) {
-    q <- if(lat[i]>=0) if(lon[i]>=0) 'ne' else 'nw' else if(lon[i]>=0) 'se' else 'sw'
-    z <- fe[[q]]; a <- floor(abs(lat[i]))+1; rows <- z$start[a]+seq_len(z$n[a])-1
-    r <- z$v[rows,,drop=FALSE]; r[max(which(r[,1]<=floor(abs(lon[i])))),2]
-  },numeric(1))
+desc <- function(x) {
+  x <- x[is.finite(x)]
+  c(n=length(x), media=mean(x), mediana=median(x), DP=sd(x), variancia=var(x),
+    min=min(x), Q1=unname(quantile(x,.25)), Q3=unname(quantile(x,.75)),
+    P90=unname(quantile(x,.9)), P95=unname(quantile(x,.95)),
+    P99=unname(quantile(x,.99)), P999=unname(quantile(x,.999)), max=max(x),
+    shape_moments(x))
 }
-haversine <- function(lon,lat,x,y) {
-  rad <- pi/180; a <- sin((lat-y)*rad/2)^2+cos(lat*rad)*cos(y*rad)*sin((lon-x)*rad/2)^2
-  6371*2*asin(pmin(1,sqrt(a)))
+region_names <- c('África','América do Norte','América do Sul','Ásia','Europa',
+                  'Oceania','Áreas oceânicas/outros')
+continent_lookup <- c('Africa'='África','North America'='América do Norte',
+                      'South America'='América do Sul','Asia'='Ásia',
+                      'Europe'='Europa','Oceania'='Oceania')
+geo_load <- function() jsonlite::fromJSON('data/raw/ne_50m_admin_0_countries.geojson',
+                                         simplifyVector=FALSE)
+geo_polygons <- function(feature) {
+  if(feature$geometry$type=='Polygon') list(feature$geometry$coordinates)
+  else feature$geometry$coordinates
 }
-# Variante simétrica das janelas Gardner–Knopoff; não é um catálogo de mainshocks validado.
-decluster <- function(d,factor=1) {
-  d <- d[order(-d$Magnitude,d$timestamp,d$ID),]; keep <- rep(TRUE,nrow(d)); cluster <- integer(nrow(d))
-  for(i in seq_len(nrow(d))) if(keep[i]) {
-    m <- d$Magnitude[i]; days <- if(m>=6.5) 10^(.032*m+2.7389) else 10^(.5409*m-.547)
-    radius <- 10^(.1238*m+.983)
-    cand <- which(keep & seq_len(nrow(d))>i & abs(as.numeric(difftime(d$timestamp,d$timestamp[i],units='days')))<=days*factor)
-    if(length(cand)) {
-      hit <- cand[haversine(d$Longitude[cand],d$Latitude[cand],d$Longitude[i],d$Latitude[i])<=radius*factor]
-      keep[hit]<-FALSE;cluster[hit]<-i
+# Point-in-polygon em coordenadas WGS84; sem buffers, snapping ou costa mais próxima.
+classify_continents <- function(lon,lat,geo) {
+  hits <- vector('list',length(lon))
+  for(j in seq_along(geo$features)) {
+    f <- geo$features[[j]]
+    for(poly in geo_polygons(f)) {
+      ring <- do.call(rbind,lapply(poly[[1]],unlist))
+      k <- which(lon>=min(ring[,1]) & lon<=max(ring[,1]) &
+                 lat>=min(ring[,2]) & lat<=max(ring[,2]))
+      if(!length(k)) next
+      inside <- sp::point.in.polygon(lon[k],lat[k],ring[,1],ring[,2])>0
+      if(length(poly)>1) for(h in poly[-1]) {
+        hole <- do.call(rbind,lapply(h,unlist))
+        inside <- inside & sp::point.in.polygon(lon[k],lat[k],hole[,1],hole[,2])==0
+      }
+      for(i in k[inside]) hits[[i]] <- union(hits[[i]],j)
     }
-  }; d$cluster_removed <- !keep; d$cluster_parent <- cluster;d
-}
-gpd_fit <- function(x,u) evd::fpot(x,threshold=u,model='gpd',std.err=TRUE)
-gpd_return <- function(f,u,lambda,T) {
- s <- f$estimate['scale']; xi<-f$estimate['shape'];a<-lambda/(-log(1-1/T))
- if(abs(xi)<1e-7) u+s*log(a) else u+s/xi*(a^xi-1)
+  }
+  country <- vapply(hits,function(h) paste(sort(unique(vapply(h,function(j)
+    geo$features[[j]]$properties$ADMIN,character(1)))),collapse='; '),character(1))
+  labels <- lapply(hits,function(h) unique(na.omit(unname(continent_lookup[
+    vapply(h,function(j) geo$features[[j]]$properties$CONTINENT,character(1))]))))
+  region <- vapply(labels,function(h) if(length(h)==1) h else tail(region_names,1),character(1))
+  reason <- vapply(seq_along(hits),function(i) {
+    if(!length(hits[[i]])) 'Fora dos polígonos'
+    else if(length(labels[[i]])==1) 'Polígono continental'
+    else if(length(labels[[i]])>1) 'Fronteira continental ambígua'
+    else 'Polígono fora dos seis continentes'
+  },character(1))
+  data.frame(regiao=region,pais_poligono=country,criterio_geografico=reason)
 }

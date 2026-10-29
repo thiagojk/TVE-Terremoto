@@ -1,4 +1,3 @@
-desc <- function(x) c(n=length(x),media=mean(x),mediana=median(x),DP=sd(x),variancia=var(x),min=min(x),Q1=unname(quantile(x,.25)),Q3=unname(quantile(x,.75)),P90=unname(quantile(x,.9)),P95=unname(quantile(x,.95)),P99=unname(quantile(x,.99)),P999=unname(quantile(x,.999)),max=max(x))
 write_table(data.frame(medida=names(desc(d$Magnitude)),Magnitude=desc(d$Magnitude),Depth=desc(d$Depth)),'descritiva')
 write_table(as.data.frame(table(raw$Type,useNA='ifany')),'tipos_evento')
 write_table(as.data.frame(table(d$`Magnitude Type`,useNA='ifany')),'tipos_magnitude')

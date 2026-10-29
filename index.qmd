@@ -1,6 +1,6 @@
 ---
 title: "Magnitude extrema, incerteza explícita"
-subtitle: "Teoria dos Valores Extremos aplicada a terremotos globais e regiões Flinn–Engdahl"
+subtitle: "Teoria dos Valores Extremos aplicada a terremotos globais e continentes"
 ---
 
 ```{r}
@@ -13,7 +13,7 @@ d <- read.csv('data/processed/terremotos.csv'); r <- read.csv('tables/retorno_gl
 Como se comporta a cauda das magnitudes, e quanta incerteza existe ao extrapolar além do período observado?
 :::
 
-Este projeto estuda máximos anuais globais pela distribuição GEV, compara blocos trimestrais e semestrais e examina quatro regiões sísmicas reconhecidas. A análise complementar de picos acima de limiar usa GPD com agrupamento de eventos próximos no tempo e no espaço.
+Este projeto estuda máximos anuais globais pela distribuição GEV, compara blocos trimestrais e semestrais e compara seis continentes e uma categoria de áreas oceânicas/outros a partir de polígonos Natural Earth. O relatório também avalia a dependência temporal e uma distribuição α-estável exploratória para as magnitudes individuais.
 
 O [relatório completo](relatorio.qmd) reúne metodologia, auditoria, mapas, estimativas e limitações em uma sequência de leitura. O [guia de reprodução](reproducibilidade.qmd) descreve os comandos e os arquivos usados.
 

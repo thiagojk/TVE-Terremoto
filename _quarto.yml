@@ -26,8 +26,10 @@ website:
         text: Mapas
       - href: relatorio.qmd#gev
         text: GEV
-      - href: relatorio.qmd#pot
-        text: POT/GPD
+      - href: relatorio.qmd#continentes
+        text: Continentes
+      - href: relatorio.qmd#estavel
+        text: α-estável
       - href: reproducibilidade.qmd
         text: Reproduzir
   page-footer: "Análise acadêmica · USGS/Kaggle, 1965–2016 · R e Quarto"

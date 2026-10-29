@@ -10,6 +10,8 @@ write_table(raw[invalid | raw$Type!='Earthquake',],'exclusoes')
 d <- raw[!invalid & raw$Type=='Earthquake' & !duplicated(raw$ID),]
 d$data <- as.Date(d$timestamp,tz='UTC');d$ano<-as.integer(format(d$data,'%Y'));d$mes<-as.integer(format(d$data,'%m'))
 d$semestre<-(d$mes-1)%/%6+1;d$trimestre<-(d$mes-1)%/%3+1;d$decada<-d$ano%/%10*10
-fe <- fe_load();d$fe_id <- fe_number(d$Longitude,d$Latitude,fe);d$regiao <- fe$names[d$fe_id]
+geo <- geo_load()
+d <- cbind(d,classify_continents(d$Longitude,d$Latitude,geo))
+write_table(as.data.frame(table(d$regiao,d$criterio_geografico)),'auditoria_geografica')
 write.csv(d,'data/processed/terremotos.csv',row.names=FALSE)
 saveRDS(d,'data/processed/terremotos.rds')

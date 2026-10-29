@@ -3,4 +3,4 @@ sensitivity<-lapply(names(sets),function(n){b<-block_max(sets[[n]]);fit_tables(b
 write_table(do.call(rbind,lapply(sensitivity,`[[`,'pars')),'sensibilidade_gev')
 write_table(do.call(rbind,lapply(sensitivity,`[[`,'ret')),'sensibilidade_retorno')
 writeLines(capture.output(sessionInfo()),'tables/sessionInfo.txt')
-saveRDS(list(global=global,regional=regional,blocks=models,pot=pot,pot_boot=pb,threshold=st,chosen=chosen),'data/processed/modelos.rds')
+saveRDS(list(global=global,regional=regional,blocks=models,stable=stable_analysis,region_names=region_names),'data/processed/modelos.rds')
