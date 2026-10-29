@@ -1,0 +1,12 @@
+{
+  "data/raw/land.geojson": "9e0729ee253ca7d7a5c4ae9395fb1902264c5377c52e224d13dd85010e2835d9",
+  "data/raw/Terremoto.csv": "691ff3ab40c1a5c25fb14dd23f92f14c71cd57cb673a5b5b484d4a5fe0866e03",
+  "data/raw/PROVENIENCIA.md": "482bef5f9e14ca7bb6bbffdd794592b7f754b28c56e66e9d3a16d23cdfc3d7ac",
+  "data/raw/fe/quadsidx.asc": "3e3a7553780c2233f11c2ebef014393a7bd32617a353de4e7f1214dd2f68e9e0",
+  "data/raw/fe/nwsect.asc": "dcbca0ae4fe2c020d6e9ce5406b40466271e79dcc8785acf285e7fd6046ad29d",
+  "data/raw/fe/LICENSE.txt": "6bc0aaa42f91c71d32e33bb8c1cd46b76b3b056bb48af1a55cfc5f971ad8d94b",
+  "data/raw/fe/sesect.asc": "831256e2c4c2fd5543816a62a7d68840987200bd13bf8633b6ae628fecd739d8",
+  "data/raw/fe/names.asc": "4b827d5f66bf47256fed52bd0bbf265751d0e34e3356477d2bbda1fcca980ce7",
+  "data/raw/fe/swsect.asc": "f041077c0ea68add8d9d67ace0b3548bf969650c4efdd2ad4dfabb528d28b4bf",
+  "data/raw/fe/nesect.asc": "201316b895c2da2e373dce1f5e20e0bd0df6ce730cf40ad2f607c5f34b5f4728"
+}

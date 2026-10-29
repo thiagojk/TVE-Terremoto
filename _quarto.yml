@@ -1,0 +1,46 @@
+project:
+  type: website
+  output-dir: docs
+  render:
+    - index.qmd
+    - relatorio.qmd
+    - reproducibilidade.qmd
+  resources:
+    - mapa.html
+    - assets/
+    - tables/
+    - figures/
+    - data/processed/terremotos.csv
+  pre-render: Rscript R/run.R
+lang: pt-BR
+website:
+  title: "TVE · Terremotos"
+  navbar:
+    background: "#173847"
+    left:
+      - href: index.qmd
+        text: Início
+      - href: relatorio.qmd
+        text: Relatório
+      - href: relatorio.qmd#espaco
+        text: Mapas
+      - href: relatorio.qmd#gev
+        text: GEV
+      - href: relatorio.qmd#pot
+        text: POT/GPD
+      - href: reproducibilidade.qmd
+        text: Reproduzir
+  page-footer: "Análise acadêmica · USGS/Kaggle, 1965–2016 · R e Quarto"
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    number-sections: true
+    code-fold: true
+    code-tools: true
+    html-math-method: mathjax
+bibliography: referencias.bib
+execute:
+  echo: false
+  error: false

@@ -1,0 +1,6 @@
+sets<-list('Família Mw'=d[grepl('^MW',d$`Magnitude Type`),],'1965–1990'=d[d$ano<=1990,],'1991–2016'=d[d$ano>=1991,])
+sensitivity<-lapply(names(sets),function(n){b<-block_max(sets[[n]]);fit_tables(b$Magnitude,n)})
+write_table(do.call(rbind,lapply(sensitivity,`[[`,'pars')),'sensibilidade_gev')
+write_table(do.call(rbind,lapply(sensitivity,`[[`,'ret')),'sensibilidade_retorno')
+writeLines(capture.output(sessionInfo()),'tables/sessionInfo.txt')
+saveRDS(list(global=global,regional=regional,blocks=models,pot=pot,pot_boot=pb,threshold=st,chosen=chosen),'data/processed/modelos.rds')

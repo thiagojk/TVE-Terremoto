@@ -1,0 +1,24 @@
+---
+title: "Magnitude extrema, incerteza explícita"
+subtitle: "Teoria dos Valores Extremos aplicada a terremotos globais e regiões Flinn–Engdahl"
+---
+
+```{r}
+d <- read.csv('data/processed/terremotos.csv'); r <- read.csv('tables/retorno_global.csv')
+```
+
+::: {.hero}
+**`r format(nrow(d), big.mark='.', decimal.mark=',', scientific=FALSE)` terremotos · `r min(d$ano)`–`r max(d$ano)` · máximos anuais**
+
+Como se comporta a cauda das magnitudes, e quanta incerteza existe ao extrapolar além do período observado?
+:::
+
+Este projeto estuda máximos anuais globais pela distribuição GEV, compara blocos trimestrais e semestrais e examina quatro regiões sísmicas reconhecidas. A análise complementar de picos acima de limiar usa GPD com agrupamento de eventos próximos no tempo e no espaço.
+
+O [relatório completo](relatorio.qmd) reúne metodologia, auditoria, mapas, estimativas e limitações em uma sequência de leitura. O [guia de reprodução](reproducibilidade.qmd) descreve os comandos e os arquivos usados.
+
+![](figures/mapa_maximos.png){fig-alt="Mapa mundial dos eventos selecionados como máximos anuais"}
+
+O nível global de retorno de 100 anos foi estimado em **`r round(r$magnitude[r$T==100],2)`**, com IC95% bootstrap de **`r round(r$inferior[r$T==100],2)` a `r round(r$superior[r$T==100],2)`**. Trata-se de uma estimativa condicionada ao modelo e ao catálogo histórico, com extrapolação além de sua duração. A comparação com localização linear indicou evidência contra estacionariedade; esse retorno é um resumo histórico condicionado ao modelo. Não é uma previsão de data, local, dano ou risco para uma cidade.
+
+[Leia os resultados e os diagnósticos →](relatorio.qmd#gev)

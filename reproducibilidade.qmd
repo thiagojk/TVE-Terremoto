@@ -1,0 +1,30 @@
+---
+title: "Dados, código e reprodução"
+---
+
+O código está no [GitHub](https://github.com/thiagojk/TVE-Terremoto). O CSV bruto fornecido é preservado byte a byte em `data/raw/Terremoto.csv`. Sua proveniência é a coleção USGS publicada no Kaggle; não foi realizada uma nova consulta ao USGS. O arquivo bruto tem aproximadamente 2,4 MB e pode ser versionado normalmente. As tabelas geográficas de Flinn–Engdahl e a costa Natural Earth são incluídas para evitar downloads durante a análise.
+
+## Executar
+
+Instale R 4.5.2 e Quarto 1.8.27. Na raiz do repositório:
+
+```bash
+Rscript -e 'install.packages("renv"); renv::restore(prompt=FALSE)'
+Rscript R/run.R
+Rscript tests/validate.R
+quarto render
+```
+
+O Quarto executa o pipeline em `pre-render`, portanto a execução separada de `R/run.R` é opcional. Os scripts sobrescrevem apenas produtos derivados. A semente é fixa; diferenças de plataforma ainda podem produzir pequenas diferenças numéricas. As versões completas estão em `renv.lock` e [sessionInfo](tables/sessionInfo.txt).
+
+## Dados e resultados
+
+A [base processada](data/processed/terremotos.csv) conserva coordenadas, escalas, datas e identificadores. Consulte a [auditoria](tables/auditoria.csv), os [máximos anuais](tables/maximos_anuais.csv), os [níveis de retorno GEV](tables/retorno_global.csv), os [diagnósticos de limiar](tables/thresholds.csv) e o [registro de agrupamento](tables/declustering.csv).
+
+Para atualizar a base, substitua o CSV bruto, revise o período de cobertura e os denominadores anuais (este estudo usa os 52 anos de 1965 a 2016), execute novamente e inspecione exclusões, mudanças de escala e diagnósticos. A validação falha se a cobertura temporal esperada mudar, exigindo uma revisão explícita do desenho do estudo.
+
+## Publicação
+
+O workflow `publish.yml` restaura o ambiente, executa validações, renderiza para `docs/`, envia o artefato e publica com GitHub Pages. Em **Settings → Pages → Build and deployment**, selecione **GitHub Actions**. O endereço esperado é `https://thiagojk.github.io/TVE-Terremoto/`; só deve ser considerado publicado depois do sucesso do deployment.
+
+O mapa usa Leaflet 1.9.4 com arquivos JS, CSS e geometrias locais. Não precisa de servidor, API ou serviço de tiles. As equações usam MathJax conforme a configuração padrão do Quarto.

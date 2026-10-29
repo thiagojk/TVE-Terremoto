@@ -1,0 +1,15 @@
+.Rhistory
+.RData
+.Rproj.user/
+.quarto/
+renv/library/
+renv/staging/
+docs/
+*_files/
+
+/.quarto/
+**/*.quarto_ipynb
+data/processed/
+figures/
+tables/
+mapa.html
