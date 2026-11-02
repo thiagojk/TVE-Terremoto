@@ -11,6 +11,7 @@ project:
     - tables/
     - figures/
     - data/processed/terremotos.csv
+    - data/raw/PROVENIENCIA.md
   pre-render: Rscript R/run.R
 lang: pt-BR
 website:
@@ -28,11 +29,9 @@ website:
         text: GEV
       - href: relatorio.qmd#continentes
         text: Continentes
-      - href: relatorio.qmd#estavel
-        text: α-estável
       - href: reproducibilidade.qmd
         text: Reproduzir
-  page-footer: "Análise acadêmica · USGS/Kaggle, 1965–2016 · R e Quarto"
+  page-footer: "Análise acadêmica · Registros históricos USGS/NEIC, 1965–2016 · R e Quarto"
 format:
   html:
     theme: cosmo

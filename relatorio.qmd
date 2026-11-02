@@ -1,7 +1,16 @@
 ---
 title: "Teoria dos Valores Extremos aplicada à magnitude de terremotos"
-subtitle: "Máximos de blocos, comparação continental e análise exploratória α-estável"
+subtitle: "Máximos de blocos, comparação continental e não estacionariedade"
 author: "Projeto TVE-Terremoto"
+format:
+  html: default
+  docx:
+    toc: true
+    number-sections: true
+    reference-doc: templates/reference.docx
+format-links: false
+filters:
+  - filters/word-links.lua
 ---
 
 ```{r}
@@ -20,7 +29,6 @@ acf_lags <- function(n) {
 }
 d <- readRDS('data/processed/terremotos.rds'); mo <- readRDS('data/processed/modelos.rds')
 f <- mo$global$fit; rp <- tab('retorno_global'); xi <- tab('gev_global')[3,]
-stable <- mo$stable
 land_ret <- function(T) {
   z <- tab('retorno_regional')
   z[z$T==T & z$modelo!='Áreas oceânicas/outros',]
@@ -29,11 +37,15 @@ xi_land <- tab('gev_regional')
 xi_land <- xi_land[xi_land$parametro=='xi' & xi_land$modelo!='Áreas oceânicas/outros',]
 ```
 
+::: {.content-visible when-format="html"}
+[Baixar relatório em Word](relatorio.docx){.btn .btn-primary download="relatorio.docx"}
+:::
+
 # Introdução e objetivos
 
 A magnitude caracteriza o tamanho de um terremoto por meio de medidas instrumentais que dependem da escala empregada. A sucessão de eventos no catálogo não constitui uma amostra simples de observações independentes: sequências sísmicas, mudanças na instrumentação e diferenças de cobertura afetam a interpretação. A Teoria dos Valores Extremos (TVE) oferece aproximações para a cauda superior, mas não elimina essas dificuldades [@coles2001; @embrechts1997].
 
-A pergunta central é como se distribuem as magnitudes extremas globais e como esse comportamento varia entre regiões reconhecidas. O objetivo geral é estimar uma GEV para máximos anuais e quantificar a incerteza de níveis de retorno. Especificamente, comparam-se blocos trimestrais, semestrais e anuais, bem como seis continentes e uma categoria residual de áreas oceânicas/outros. Uma distribuição α-estável é ajustada exploratoriamente às magnitudes individuais do catálogo. Examinam-se também escalas de magnitude, períodos históricos, dependência e possível não estacionariedade. A GEV permanece o modelo principal dos máximos anuais; o ajuste estável descreve outro objeto estatístico. A análise é descritiva e probabilística, sem inferência causal ou previsão operacional de terremotos.
+A pergunta central é como se distribuem as magnitudes extremas globais e como esse comportamento varia entre regiões reconhecidas. O objetivo geral é estimar uma GEV para máximos anuais e quantificar a incerteza de níveis de retorno. Especificamente, comparam-se blocos trimestrais, semestrais e anuais, bem como seis continentes e uma categoria residual de áreas oceânicas/outros. Examinam-se também escalas de magnitude, períodos históricos, dependência e possível não estacionariedade. A GEV é o modelo principal dos máximos anuais. A análise é descritiva e probabilística, sem inferência causal ou previsão operacional de terremotos.
 
 O trabalho anterior `TVE_OPME.pdf`, de Carlos Eduardo Alves de Souza, foi lido integralmente como referência de organização. Sua sequência descritiva, tabela de comparação de blocos, parâmetros e diagnóstico motivou a apresentação. Aqui não se reproduzem a escolha do bloco por p-valor, a transformação logarítmica dos custos, nem os modelos BGEV e misturas Skew-t: a magnitude já é uma medida logarítmica e o problema científico é outro. As limitações de ajuste são discutidas abertamente, como no estudo de referência.
 
@@ -60,17 +72,13 @@ $$
 
 No limite de Gumbel, $z_T=\mu-\sigma\log[-\log(1-1/T)]$. A probabilidade de o máximo anual exceder $z_T$ é $1/T$; isso não significa que eventos sejam igualmente espaçados ou ocorram em uma data prevista. Para blocos de duração $b$ anos, a conversão exigiria $G_b(z)=(1-1/T)^b$ sob independência. As tabelas de retorno dos blocos menores neste projeto permanecem em **unidades de blocos**, evitando uma comparação anual incorreta.
 
-## Distribuições α-estáveis
-
-Distribuições α-estáveis formam uma família usada para descrever assimetria e, quando $0<\alpha<2$, caudas pesadas. O índice $\alpha\in(0,2]$ controla a estabilidade e o decaimento assintótico; $\beta\in[-1,1]$ controla a assimetria, $\gamma>0$ é escala e $\delta$ é localização. O caso $\alpha=2$ corresponde à distribuição gaussiana. As definições de escala e localização dependem da parametrização; aqui se emprega exclusivamente **Nolan S0**, identificada por `pm=0` em `stabledist` [@nolan2020; @stabledist].
-
-Essa família não constitui uma justificativa alternativa automática para o modelo de máximos. A GEV aproxima a distribuição de máximos de blocos; a lei estável, nesta seção exploratória, é uma tentativa de modelagem das magnitudes individuais, sem tomar os máximos anuais como observações de ajuste. A existência de uma estimativa $\widehat\alpha<2$ não comprova uma lei física estável nem valida a extrapolação da cauda do catálogo.
-
 # Dados e metodologia
 
 ## Fonte, auditoria e preparação
 
-Utilizou-se exclusivamente o CSV fornecido, associado à coleção “Significant Earthquakes, 1965–2016”, disponibilizada no Kaggle a partir do USGS [@kaggle; @usgs; @usgsformat]. A identificação dessa fonte não torna o catálogo completo para todas as magnitudes e épocas. O bruto é preservado, e a análise usa apenas registros `Earthquake`. Explosões nucleares e convencionais e o evento classificado como `Rock Burst` são excluídos pelo tipo, com registro em tabela.
+A análise utiliza uma cópia histórica de registros sísmicos de 1965–2016 cuja procedência documentada é o **United States Geological Survey (USGS), por meio do National Earthquake Information Center (NEIC)**. A documentação da coleção e os metadados do arquivo foram confrontados com a documentação oficial do ANSS Comprehensive Earthquake Catalog (ComCat), que reúne parâmetros e produtos de redes sísmicas e catálogos contribuintes [@usgs; @usgsformat; @usgscatalogs; @neic]. Essa atribuição identifica a origem documentada da compilação, sem supor que todas as medições foram produzidas exclusivamente pelo USGS.
+
+O estudo emprega o arquivo arquivado `Terremoto.csv`; **não realizou uma extração direta do serviço USGS**. Não se dispõe da consulta original nem de seu instante de execução, e não se demonstra equivalência registro a registro com o catálogo atual, que pode ser revisado. A cadeia de distribuição, a documentação consultada e os limites dessa confirmação estão registrados no [guia de procedência](reproducibilidade.qmd#procedencia) e no repositório. O CSV contém data, hora, latitude, longitude, profundidade, magnitude, tipo de magnitude, identificadores, códigos de origem e campos auxiliares de qualidade. A seleção histórica é descrita como eventos com magnitude reportada ≥ 5,5, corte confirmado empiricamente nesta cópia; isso não demonstra completude para todas as magnitudes e épocas. O bruto é preservado, e a análise usa apenas registros `Earthquake`. Explosões nucleares e convencionais e o evento classificado como `Rock Burst` são excluídos pelo tipo, com registro em tabela.
 
 As datas são interpretadas em UTC, no formato mês/dia/ano; as três datas ISO recebem conversão específica, incluindo segundos fracionários. Ano, mês, trimestre, semestre e década são derivados após a conversão. IDs repetidos são auditados e, se existissem, seria preservada a primeira ocorrência. Magnitudes finitas, coordenadas nos limites terrestres, data válida e profundidade finita são exigidas. Profundidade negativa não é removida automaticamente, pois a referência vertical do hipocentro pode produzir valores negativos. O código não interpola magnitudes nem converte escalas sem informação de calibração.
 
@@ -86,7 +94,7 @@ showtab("auditoria")
 showtab("auditoria_colunas")
 ```
 
-A amostra analítica contém **`r nrow(d)`** eventos, de **`r min(d$data)`** a **`r max(d$data)`**. O menor valor de magnitude é **`r min(d$Magnitude)`**, confirmando o corte inferior observado de 5,5 na cópia recebida. Os máximos anuais ficam acima desse corte, mas a seleção do catálogo ainda limita a generalização. O ajuste estável à distribuição individual é especialmente vulnerável a esse corte: o modelo não truncado atribui probabilidade a magnitudes ausentes por seleção, e não necessariamente por impossibilidade física.
+A amostra analítica contém **`r nrow(d)`** eventos, de **`r min(d$data)`** a **`r max(d$data)`**. O menor valor de magnitude é **`r min(d$Magnitude)`**, confirmando o corte inferior observado de 5,5 no arquivo analisado. Os máximos anuais ficam acima desse corte, mas a seleção do catálogo ainda limita a generalização.
 
 A tabela de ausências mostra que campos auxiliares não estão igualmente disponíveis. Erros de mensuração não são imputados, e a inferência dos modelos não incorpora explicitamente esses erros. Valores repetidos de magnitude refletem também arredondamento e resolução instrumental, violando a idealização de uma distribuição perfeitamente contínua.
 
@@ -96,15 +104,13 @@ A tabela de ausências mostra que campos auxiliares não estão igualmente dispo
 showtab("tipos_magnitude")
 ```
 
-![Composição anual dos tipos de magnitude; fonte: USGS/Kaggle](figures/escalas.png){#fig-escalas fig-alt="Composição anual dos tipos de magnitude; fonte: USGS/Kaggle"}
+![Composição anual dos tipos de magnitude; fonte: registros históricos de procedência USGS/NEIC](figures/escalas.png){#fig-escalas fig-alt="Composição anual dos tipos de magnitude; fonte: registros históricos de procedência USGS/NEIC"}
 
 A composição de escalas muda ao longo da série, de modo que a hipótese de comparabilidade temporal requer cautela. A família de magnitude de momento (`MW`, `MWC`, `MWB`, `MWW`, `MWR`) é examinada separadamente na sensibilidade. Essa restrição reduz a mistura de escalas, mas não homogeneíza automaticamente algoritmos, fontes e redes. As tabelas completas por ano são disponibilizadas para inspeção.
 
 ## Estimação e incerteza
 
 As estimativas GEV são obtidas por máxima verossimilhança com o pacote `evd` [@stephenson2002]. Para a GEV estacionária são usados três valores iniciais de forma; entre soluções convergentes, retém-se a maior verossimilhança. Erros-padrão vêm da informação observada. Os IC95% reportados são percentis de 399 reamostragens não paramétricas circulares de blocos contíguos de máximos, com semente fixa. Reajustes que falham não recebem valores fictícios; a quantidade de réplicas válidas é reportada. O comprimento de reamostragem é $\lceil n^{1/3}\rceil$ máximos (quatro para a série anual). Essa escolha preserva dependência local e substitui a reamostragem de anos isolados diante da autocorrelação detectada. Ainda pressupõe estacionariedade aproximada para justificar a reamostragem circular; os intervalos são descritivos e não resolvem a evidência de tendência nem mudanças do processo de observação. PWM não foi acrescentado, pois o foco está na estimação MLE com diagnóstico e incerteza, sem multiplicar estimadores sem necessidade.
-
-O ajuste estável utiliza o estimador por quantis de McCulloch, implementado em `fBasics::stableFit(type="q")`, sobre todas as magnitudes da amostra analítica [@mcculloch1986; @fbasics]. O método interpola relações entre quantis; não é um otimizador iterativo e, portanto, não possui código de convergência MLE. A validade numérica dos quatro parâmetros, o método, a parametrização e eventuais avisos são registrados explicitamente. Os diagnósticos usam `stabledist` com `pm=0`, coerente com a parametrização do estimador. Não se ajusta uma lei estável condicionada ao corte, razão pela qual esse exercício é apresentado como avaliação exploratória de adequação.
 
 A análise principal usa anos civis, com comparação trimestral e semestral. Blocos vazios são contados no calendário esperado de 1965–2016; não recebem magnitude zero. Em empates, escolhe-se o evento mais cedo e depois o ID para localização no mapa. O valor máximo permanece o mesmo. O Ljung–Box usa dez defasagens, previamente fixadas, e serve como diagnóstico, não como critério para maximizar p-valores.
 
@@ -118,12 +124,12 @@ A análise principal usa anos civis, com comparação trimestral e semestral. Bl
 showtab("descritiva")
 ```
 
-A assimetria e a curtose foram calculadas a partir dos momentos centrais empíricos com divisor $n$: $g_1=m_3/m_2^{3/2}$ e $g_2=m_4/m_2^2-3$, em que $m_k=n^{-1}\sum_i(x_i-\bar x)^k$. A tabela usa **excesso de curtose**, cuja referência normal é zero, sem correção de viés amostral. Para a magnitude, a assimetria é **`r fmt(desc_m('assimetria'))`** e o excesso de curtose é **`r fmt(desc_m('excesso_curtose'))`**. A assimetria positiva indica concentração nos valores menores e uma extensão mais longa à direita; o excesso positivo expressa um quarto momento padronizado maior que o normal, compatível descritivamente com observações afastadas do centro. Isso motiva examinar os máximos e seus quantis extremos pela TVE. Essas duas medidas, isoladamente, não identificam um domínio extremal nem provam cauda de Pareto ou uma lei α-estável; ambas são afetadas pelo corte do catálogo e pela mistura de escalas.
+A assimetria e a curtose foram calculadas a partir dos momentos centrais empíricos com divisor $n$: $g_1=m_3/m_2^{3/2}$ e $g_2=m_4/m_2^2-3$, em que $m_k=n^{-1}\sum_i(x_i-\bar x)^k$. A tabela usa **excesso de curtose**, cuja referência normal é zero, sem correção de viés amostral. Para a magnitude, a assimetria é **`r fmt(desc_m('assimetria'))`** e o excesso de curtose é **`r fmt(desc_m('excesso_curtose'))`**. A assimetria positiva indica concentração nos valores menores e uma extensão mais longa à direita; o excesso positivo expressa um quarto momento padronizado maior que o normal, compatível descritivamente com observações afastadas do centro. Isso motiva examinar os máximos e seus quantis extremos pela TVE. Essas duas medidas, isoladamente, não identificam um domínio extremal nem provam cauda de Pareto; ambas são afetadas pelo corte do catálogo e pela mistura de escalas.
 
 
-![Magnitude, profundidade e associação descritiva; fonte: USGS/Kaggle](figures/exploratoria.png){#fig-exploratoria fig-alt="Magnitude, profundidade e associação descritiva; fonte: USGS/Kaggle"}
+![Magnitude, profundidade e associação descritiva; fonte: registros históricos de procedência USGS/NEIC](figures/exploratoria.png){#fig-exploratoria fig-alt="Magnitude, profundidade e associação descritiva; fonte: registros históricos de procedência USGS/NEIC"}
 
-![Cobertura temporal e magnitude ao longo do período; fonte: USGS/Kaggle](figures/temporal.png){#fig-temporal fig-alt="Cobertura temporal e magnitude ao longo do período; fonte: USGS/Kaggle"}
+![Cobertura temporal e magnitude ao longo do período; fonte: registros históricos de procedência USGS/NEIC](figures/temporal.png){#fig-temporal fig-alt="Cobertura temporal e magnitude ao longo do período; fonte: registros históricos de procedência USGS/NEIC"}
 
 O acúmulo de observações próximo ao corte inferior deve ser lido como uma característica da seleção do catálogo. O percentil 99,9 é descritivo e depende de poucas dezenas de eventos; não fornece validação independente da extrapolação de retorno. A dispersão da profundidade e o gráfico bivariado não autorizam conclusões causais sobre a magnitude. Alterações na contagem anual também podem refletir observação e classificação, e não apenas alterações do processo sísmico.
 
@@ -143,9 +149,15 @@ A distribuição concentra eventos em faixas geográficas, em concordância desc
 
 O mapa interativo contém somente eventos com magnitude ≥ 7 para limitar o peso do HTML. Cada ponto apresenta data UTC, magnitude e escala, profundidade, coordenadas e classificação continental, incluindo a categoria oceânica/residual. Costa e eventos estão incorporados e o Leaflet é servido localmente, sem dependência de serviços de tiles.
 
+::: {.content-visible when-format="html"}
 <iframe src="mapa.html" title="Mapa Leaflet dos terremotos de magnitude pelo menos 7" loading="lazy"></iframe>
 
 [Abrir mapa em página própria](mapa.html).
+:::
+
+::: {.content-visible when-format="docx"}
+Os mapas estáticos estão incorporados a este documento. A versão interativa pode ser consultada no [mapa publicado do projeto](https://thiagojk.github.io/TVE-Terremoto/mapa.html).
+:::
 
 ## Máximos e blocos temporais
 
@@ -273,47 +285,6 @@ As estimativas pontuais continentais de xi são negativas, mas os IC95% incluem 
 
 As curvas descrevem máximos de áreas com extensões, quantidades de eventos e cobertura diferentes. A análise de forma é particularmente incerta com uma única série de máximos por categoria. A estimativa pontual mais alta de um retorno não representa, por si só, evidência estatística de diferença entre continentes; os intervalos e as limitações de classificação devem ser considerados conjuntamente. A sobreposição de intervalos também não é um teste formal de igualdade. O bootstrap preserva dependência local, mas não elimina tendências ou heterogeneidade dentro de cada conjunto; os retornos continuam sendo resumos históricos condicionais, não uma classificação de perigo local.
 
-## Distribuição α-estável: análise exploratória {#estavel}
-
-O ajuste utiliza as **`r stable$n` magnitudes individuais** da amostra analítica, sem reamostrar nem reduzir aos máximos anuais. O objetivo é avaliar se uma lei estável não truncada descreve o corpo e a cauda do catálogo. O método de quantis de McCulloch é apresentado com sua definição de localização e escala, para evitar comparar parâmetros de convenções incompatíveis.
-
-```{r}
-#| label: tbl-estavel-parametros
-#| tbl-cap: "Tentativa de ajuste α-estável: parâmetros, método, parametrização, amostra e estado numérico"
-showtab('estavel_parametros')
-```
-
-O estado registrado é **`r stable$status`**: `r stable$message` Não existe código de convergência de otimizador neste estimador por interpolação. A obtenção de quatro parâmetros admissíveis é uma condição numérica, não uma demonstração de qualidade do ajuste. A tabela de interpolação deste estimador cobre beta de −0,95 a 0,95, intervalo mais estreito que o espaço teórico [−1,1]. `r if(stable$status=="ok" && abs(stable$parameters["beta"])>=.94) "A estimativa de beta ficou próxima ou no limite dessa tabela; isso é uma limitação numérica importante e não uma identificação precisa da assimetria populacional." else "O parâmetro beta deve ser interpretado à luz da resolução da interpolação."` Avisos numéricos, quando existentes, são registrados e expostos abaixo; não são convertidos em resultados fictícios.
-
-```{r}
-if(length(stable$warnings)) knitr::kable(data.frame(aviso=stable$warnings))
-```
-
-```{r}
-#| label: fig-diagnostico-estavel
-#| fig-cap: "Ajuste α-estável não truncado em S0: densidade, QQ em quantis selecionados e cauda em escala logarítmica"
-#| out-width: 100%
-if(stable$status=='ok') knitr::include_graphics('figures/diagnostico_estavel.png')
-```
-
-```{r}
-#| label: tbl-estavel-quantis
-#| tbl-cap: "Comparação de quantis empíricos com a lei estável ajustada, quando numericamente admissível"
-if(stable$status=='ok') showtab('estavel_quantis')
-```
-
-```{r}
-#| results: asis
-if(stable$status=='ok') {
-  p <- stable$parameters; q <- tab('estavel_quantis')
-  cat(sprintf('O índice estimado é **%s**, e o parâmetro de assimetria é **%s**, em S0. A lei não truncada atribui **%s%%** de probabilidade abaixo do menor valor catalogado (%s). Essa massa é incompatível com uma descrição literal da distribuição observada sem representar o mecanismo de seleção. No percentil 99, o catálogo apresenta **%s**, enquanto o ajuste fornece **%s**; o QQ e a cauda mostram forte superestimação dos quantis superiores. Assim, a lei estável não truncada não parece adequada para descrever a distribuição catalogada, apesar de reproduzir alguns quantis centrais por construção. ',fmt(p['alpha']),fmt(p['beta']),fmt(100*stable$below_cut,1),fmt(min(d$Magnitude),1),fmt(q$empirico[q$probabilidade==.99],2),fmt(q$estavel[q$probabilidade==.99],2)))
-} else cat('A tentativa de estimação não produziu parâmetros admissíveis. Por essa razão, não se apresentam curvas ou quantis teóricos como se um ajuste válido tivesse sido obtido. ')
-```
-
-No histograma, a curva é a densidade estável **não condicionada** ao corte. O QQ compara quantis selecionados, incluindo a cauda, com a diagonal de igualdade; afastamentos grandes mostram onde o modelo extrapola além dos dados. No painel de cauda, a linha empírica representa $P(X>x)$ entre os eventos catalogados e a curva usa a distribuição estável não truncada; a escala vertical logarítmica destaca diferenças em probabilidades pequenas. No último ponto, a frequência empírica é limitada visualmente a $1/n$ para permitir a escala logarítmica, sem interpretar esse piso como estimativa de excedência positiva no máximo.
-
-O corte em aproximadamente 5,5 e a mistura de escalas impedem tratar o resultado como evidência de uma lei física α-estável para magnitudes. Um valor estimado $\alpha<2$ caracteriza apenas a distribuição paramétrica ajustada sob um procedimento exploratório; o truncamento pode induzir aparente assimetria e alterar os quantis utilizados na estimação. Eventuais discrepâncias no corpo ou na cauda justificam rejeitar o uso descritivo dessa lei para a amostra, sem invalidar a abordagem de máximos de blocos. Não se substitui a GEV por esse ajuste nem se usa a lei estável para os retornos anuais principais.
-
 ## Sensibilidade e possível não estacionariedade
 
 ```{r}
@@ -354,8 +325,6 @@ showtab('dependencia_tendencia')
 Os máximos anuais globais permitiram ajustar uma GEV com localização **`r fmt(f$estimate['loc'])`**, escala **`r fmt(f$estimate['scale'])`** e forma **`r fmt(xi$estimativa)`**. O IC95% de xi vai de **`r fmt(xi$inferior)` a `r fmt(xi$superior)`**; `r if(xi$inferior<=0 && xi$superior>=0) 'por incluir zero, não permite classificar com segurança um único domínio extremal.' else 'a interpretação do domínio deve permanecer condicionada ao modelo e ao catálogo.'` O retorno de 10 anos é **`r fmt(rt(10),2)`**, e o de 100 anos é **`r fmt(rt(100),2)`**, com incerteza substancialmente maior neste último horizonte.
 
 A comparação continental passou a incluir seis categorias terrestres e uma categoria residual, com classificações auditáveis em polígonos Natural Earth. As diferenças nas curvas e nos parâmetros são descritivas, sem demonstração automática de diferenças estatísticas entre continentes. Entre as áreas terrestres elegíveis, **`r land_ret(10)$modelo[which.max(land_ret(10)$magnitude)]`** apresenta o maior retorno pontual em 10 anos, enquanto **`r land_ret(100)$modelo[which.max(land_ret(100)$magnitude)]`** tem o maior em 100 anos, mostrando a sensibilidade da comparação ao horizonte. O volume de eventos fora dos polígonos terrestres e a convenção da fonte para países transcontinentais delimitam o alcance dessas comparações. Categorias com anos sem registros foram preservadas nas descrições sem receber máximos iguais a zero ou retornos artificiais.
-
-A tentativa α-estável tem caráter complementar: `r if(stable$status=='ok') paste0('o procedimento por quantis produziu alpha = ',fmt(stable$parameters['alpha']),', mas a massa abaixo do corte e a forte superestimação da cauda indicam inadequação da lei não truncada à distribuição selecionada do catálogo.') else 'o procedimento não produziu quatro parâmetros admissíveis e essa falha foi reportada, sem forçar um ajuste.'` Em nenhum caso a estimação de alpha demonstra um mecanismo físico estável ou substitui a GEV dos máximos.
 
 A evidência favorável à localização linear e a autocorrelação dos máximos anuais brutos enfraquecem a interpretação estacionária prospectiva. Mistura de escalas, mudanças de cobertura, truncamento e a duração de **`r nrow(tab('maximos_anuais'))` anos** limitam as inferências. Os níveis de retorno são resumos históricos condicionais ao modelo; a avaliação de perigo sísmico local exigiria informação e modelos adicionais de fontes, propagação e exposição.
 

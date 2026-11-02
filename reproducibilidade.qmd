@@ -2,7 +2,13 @@
 title: "Dados, código e reprodução"
 ---
 
-O código está no [GitHub](https://github.com/thiagojk/TVE-Terremoto). O CSV bruto fornecido é preservado byte a byte em `data/raw/Terremoto.csv`. Sua proveniência é a coleção USGS publicada no Kaggle; não foi realizada uma nova consulta ao USGS. O arquivo bruto tem aproximadamente 2,4 MB e pode ser versionado normalmente. Os polígonos de países 1:50m e a costa Natural Earth são incluídas para evitar downloads durante a análise.
+O código está no [GitHub](https://github.com/thiagojk/TVE-Terremoto). O CSV arquivado é preservado byte a byte em `data/raw/Terremoto.csv`. Seu tamanho é aproximadamente 2,4 MB. Os polígonos de países 1:50m e a costa Natural Earth são incluídos para evitar downloads durante a análise.
+
+## Procedência documentada {#procedencia}
+
+A documentação da coleção **Significant Earthquakes, 1965–2016**, no [endereço de distribuição](https://www.kaggle.com/datasets/usgs/earthquake-database), associa sua origem ao USGS/NEIC. A plataforma é um intermediário de distribuição. O [USGS/NEIC](https://www.usgs.gov/programs/earthquake-hazards/national-earthquake-information-center-neic) descreve oficialmente sua função de compilar informação sísmica mundial, e a [documentação do ComCat](https://earthquake.usgs.gov/data/comcat/) esclarece a participação de outras redes e catálogos. Os campos `ID`, `Source`, `Location Source` e `Magnitude Source` do CSV e os códigos `US`, `ISCGEM` e `ISCGEMSUP` foram confrontados com a [lista oficial de catálogos](https://earthquake.usgs.gov/data/comcat/catalog/).
+
+Essas evidências sustentam a procedência documentada da compilação como USGS/NEIC, com fontes contribuintes; não demonstram uma coleta direta por este projeto. A consulta original e seu instante não estão disponíveis, nem foi comprovada a equivalência integral com o catálogo atual. Os [detalhes da investigação e seus limites](data/raw/PROVENIENCIA.md) e a [contagem dos códigos de origem](tables/fontes_eventos.csv) permitem auditar a atribuição. O bruto e os resultados numéricos foram preservados nesta revisão da procedência.
 
 ## Executar
 
@@ -19,9 +25,15 @@ O Quarto executa o pipeline em `pre-render`, portanto a execução separada de `
 
 ## Dados e resultados
 
-A [base processada](data/processed/terremotos.csv) conserva coordenadas, escalas, datas e identificadores. Consulte a [auditoria](tables/auditoria.csv), os [máximos anuais](tables/maximos_anuais.csv), os [níveis de retorno GEV](tables/retorno_global.csv), a [cobertura continental](tables/cobertura_regional.csv), os [máximos regionais com lacunas](tables/maximos_regionais.csv) e o [estado do ajuste α-estável](tables/estavel_parametros.csv).
+A [base processada](data/processed/terremotos.csv) conserva coordenadas, escalas, datas e identificadores. Consulte a [auditoria](tables/auditoria.csv), os [máximos anuais](tables/maximos_anuais.csv), os [níveis de retorno GEV](tables/retorno_global.csv), a [cobertura continental](tables/cobertura_regional.csv), os [máximos regionais com lacunas](tables/maximos_regionais.csv).
 
 Para atualizar a base, substitua o CSV bruto, revise o período de cobertura e os denominadores anuais (este estudo usa os 52 anos de 1965 a 2016), execute novamente e inspecione exclusões, mudanças de escala e diagnósticos. A validação falha se a cobertura temporal esperada mudar, exigindo uma revisão explícita do desenho do estudo.
+
+## Versão Word
+
+O mesmo `relatorio.qmd` declara os formatos HTML e DOCX. `quarto render` gera ambos; para explicitá-los em integração contínua, o workflow usa `quarto render --to all`. O Word é escrito em `docs/relatorio.docx` e publicado no mesmo artefato do site. O botão **Baixar relatório em Word**, no início do HTML, aponta para esse arquivo por caminho relativo.
+
+O arquivo é reconstruído a cada render completo, usando as mesmas tabelas e imagens calculadas para o HTML. Equações são convertidas para matemática nativa do Word. Os mapas estáticos são incorporados; o Leaflet permanece disponível por link, pois um DOCX não executa JavaScript. O filtro `filters/word-links.lua` transforma links de arquivos suplementares em endereços publicados para funcionar quando o Word é aberto fora da pasta do site. O modelo visual do Word está em `templates/reference.docx`; o estilo HTML permanece configurado em `styles.css`.
 
 ## Publicação
 

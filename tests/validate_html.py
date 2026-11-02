@@ -15,7 +15,7 @@ for p in root.rglob('*.html'):
     h=Links();text=p.read_text();h.feed(text);parsed[p]=h
     assert 'citation not found' not in text.lower(),p
     if p.parent==root:
-        assert not re.search(r'\b(?:POT|GPD)\b|Flinn|Gardner|ObsPy|declustering|thresholds',text),p
+        assert not re.search(r'\b(?:POT|GPD)\b|Flinn|Gardner|ObsPy|declustering|thresholds|α.estáve|alfa.estáve|Nolan|McCulloch|estavel_|stabledist|fBasics',text,re.I),p
 for p,h in parsed.items():
     for ref in h.links:
         u=urlsplit(ref)
@@ -28,6 +28,11 @@ assert not errors,errors
 assert len(list((root/'figures').glob('*.png')))>=14
 assert not any((root/'figures').glob('*gpd*'))
 assert not (root/'tables/thresholds.csv').exists()
+assert (root/'relatorio.docx').is_file()
+assert 'Baixar relatório em Word' in (root/'relatorio.html').read_text()
+assert 'relatorio.docx' in (root/'relatorio.html').read_text()
+assert not any((root/'tables').glob('estavel*'))
+assert not any((root/'figures').glob('*estavel*'))
 assert 'L.circleMarker' in (root/'mapa.html').read_text()
 assert 'Região continental:' in (root/'mapa.html').read_text()
 print('HTML, âncoras, figuras, mapa e remoção de resultados antigos validados.')

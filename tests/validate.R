@@ -47,14 +47,5 @@ for(n in names(m$regional)) {
   stopifnot(coverage$anos_vazios[coverage$regiao==n]==0)
   stopifnot(m$regional[[n]]$fit$convergence=='successful')
 }
-s <- m$stable
-stopifnot(s$n==nrow(d),s$parametrizacao=='Nolan S0 (pm=0)')
-if(s$status=='ok') {
-  stopifnot(all(is.finite(s$parameters)),s$parameters['alpha']>0,
-            s$parameters['alpha']<=2,abs(s$parameters['beta'])<=1,s$parameters['gamma']>0)
-  q <- read.csv('tables/estavel_quantis.csv')
-  p <- do.call(stabledist::pstable,c(list(q=q$estavel,pm=0),as.list(s$parameters)))
-  stopifnot(max(abs(p-q$probabilidade))<1e-5)
-}
-stopifnot(!any(c('pot','pot_boot','threshold','chosen')%in%names(m)))
-message('Validações estatísticas, continentais e da parametrização estável aprovadas.')
+stopifnot(!any(c('pot','pot_boot','threshold','chosen','stable')%in%names(m)))
+message('Validações GEV, continentais e de dependência aprovadas.')
