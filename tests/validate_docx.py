@@ -20,12 +20,12 @@ with ZipFile(p) as z:
     assert 'Teoria dos Valores Extremos' in text
     assert 'United States Geological Survey' in text
     assert 'Conclusão' in text and 'Referências' in text
-    assert len(doc.findall('.//w:tbl',ns))>=18,'Tabelas perderam estrutura nativa'
+    assert len(doc.findall('.//w:tbl',ns))>=14,'Tabelas perderam estrutura nativa'
     assert len(doc.findall('.//m:oMath',ns))>=2,'Equações não foram preservadas em matemática nativa'
     media=[n for n in z.namelist() if n.startswith('word/media/')]
     assert len(media)>=15,'Figuras estáticas não foram incorporadas'
     # Cada figura e tabela possui legenda; a numeração deve acompanhar o HTML.
-    for word,count in [('Figura',15),('Tabela',18)]:
+    for word,count in [('Figura',15),('Tabela',14)]:
         nums=[]
         for q in doc.findall('.//w:p',ns):
             t=''.join(e.text or '' for e in q.findall('.//w:t',ns))
@@ -37,4 +37,4 @@ with ZipFile(p) as z:
     assert any('earthquake.usgs.gov/data/comcat/' in s for s in external)
     assert not any(s.endswith('.qmd') or s.startswith(('tables/','data/','figures/')) for s in external)
     assert any('thiagojk.github.io/TVE-Terremoto/mapa.html' in s for s in external)
-print('Word: pacote íntegro, 15 figuras, 18 tabelas, equações nativas, legendas e referências validados.')
+print('Word: pacote íntegro, 15 figuras, 14 tabelas, equações nativas, legendas e referências validados.')

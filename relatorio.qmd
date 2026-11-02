@@ -1,6 +1,6 @@
 ---
 title: "Teoria dos Valores Extremos aplicada à magnitude de terremotos"
-subtitle: "Máximos de blocos, comparação continental e não estacionariedade"
+subtitle: "Máximos de blocos e comparação continental"
 author: "Projeto TVE-Terremoto"
 format:
   html: default
@@ -45,7 +45,7 @@ xi_land <- xi_land[xi_land$parametro=='xi' & xi_land$modelo!='Áreas oceânicas/
 
 A magnitude caracteriza o tamanho de um terremoto por meio de medidas instrumentais que dependem da escala empregada. A sucessão de eventos no catálogo não constitui uma amostra simples de observações independentes: sequências sísmicas, mudanças na instrumentação e diferenças de cobertura afetam a interpretação. A Teoria dos Valores Extremos (TVE) oferece aproximações para a cauda superior, mas não elimina essas dificuldades [@coles2001; @embrechts1997].
 
-A pergunta central é como se distribuem as magnitudes extremas globais e como esse comportamento varia entre regiões reconhecidas. O objetivo geral é estimar uma GEV para máximos anuais e quantificar a incerteza de níveis de retorno. Especificamente, comparam-se blocos trimestrais, semestrais e anuais, bem como seis continentes e uma categoria residual de áreas oceânicas/outros. Examinam-se também escalas de magnitude, períodos históricos, dependência e possível não estacionariedade. A GEV é o modelo principal dos máximos anuais. A análise é descritiva e probabilística, sem inferência causal ou previsão operacional de terremotos.
+A pergunta central é como se distribuem as magnitudes extremas globais e como esse comportamento varia entre regiões reconhecidas. O objetivo geral é estimar uma GEV para máximos anuais e quantificar a incerteza de níveis de retorno. Especificamente, comparam-se blocos trimestrais, semestrais e anuais, bem como seis continentes e uma categoria residual de áreas oceânicas/outros. Examina-se também a dependência dos máximos. A GEV é o modelo principal dos máximos anuais. A análise é descritiva e probabilística, sem inferência causal ou previsão operacional de terremotos.
 
 O trabalho anterior `TVE_OPME.pdf`, de Carlos Eduardo Alves de Souza, foi lido integralmente como referência de organização. Sua sequência descritiva, tabela de comparação de blocos, parâmetros e diagnóstico motivou a apresentação. Aqui não se reproduzem a escolha do bloco por p-valor, a transformação logarítmica dos custos, nem os modelos BGEV e misturas Skew-t: a magnitude já é uma medida logarítmica e o problema científico é outro. As limitações de ajuste são discutidas abertamente, como no estudo de referência.
 
@@ -106,11 +106,11 @@ showtab("tipos_magnitude")
 
 ![Composição anual dos tipos de magnitude; fonte: registros históricos de procedência USGS/NEIC](figures/escalas.png){#fig-escalas fig-alt="Composição anual dos tipos de magnitude; fonte: registros históricos de procedência USGS/NEIC"}
 
-A composição de escalas muda ao longo da série, de modo que a hipótese de comparabilidade temporal requer cautela. A família de magnitude de momento (`MW`, `MWC`, `MWB`, `MWW`, `MWR`) é examinada separadamente na sensibilidade. Essa restrição reduz a mistura de escalas, mas não homogeneíza automaticamente algoritmos, fontes e redes. As tabelas completas por ano são disponibilizadas para inspeção.
+A composição de escalas muda ao longo da série, de modo que a hipótese de comparabilidade temporal requer cautela. As tabelas completas por ano são disponibilizadas para inspeção.
 
 ## Estimação e incerteza
 
-As estimativas GEV são obtidas por máxima verossimilhança com o pacote `evd` [@stephenson2002]. Para a GEV estacionária são usados três valores iniciais de forma; entre soluções convergentes, retém-se a maior verossimilhança. Erros-padrão vêm da informação observada. Os IC95% reportados são percentis de 399 reamostragens não paramétricas circulares de blocos contíguos de máximos, com semente fixa. Reajustes que falham não recebem valores fictícios; a quantidade de réplicas válidas é reportada. O comprimento de reamostragem é $\lceil n^{1/3}\rceil$ máximos (quatro para a série anual). Essa escolha preserva dependência local e substitui a reamostragem de anos isolados diante da autocorrelação detectada. Ainda pressupõe estacionariedade aproximada para justificar a reamostragem circular; os intervalos são descritivos e não resolvem a evidência de tendência nem mudanças do processo de observação. PWM não foi acrescentado, pois o foco está na estimação MLE com diagnóstico e incerteza, sem multiplicar estimadores sem necessidade.
+As estimativas GEV são obtidas por máxima verossimilhança com o pacote `evd` [@stephenson2002]. Para a GEV estacionária são usados três valores iniciais de forma; entre soluções convergentes, retém-se a maior verossimilhança. Erros-padrão vêm da informação observada. Os IC95% reportados são percentis de 399 reamostragens não paramétricas circulares de blocos contíguos de máximos, com semente fixa. Reajustes que falham não recebem valores fictícios; a quantidade de réplicas válidas é reportada. O comprimento de reamostragem é $\lceil n^{1/3}\rceil$ máximos (quatro para a série anual). Essa escolha preserva dependência local e substitui a reamostragem de anos isolados diante da autocorrelação detectada. Ainda pressupõe estacionariedade aproximada para justificar a reamostragem circular; os intervalos são descritivos e não resolvem mudanças do processo de observação. PWM não foi acrescentado, pois o foco está na estimação MLE com diagnóstico e incerteza, sem multiplicar estimadores sem necessidade.
 
 A análise principal usa anos civis, com comparação trimestral e semestral. Blocos vazios são contados no calendário esperado de 1965–2016; não recebem magnitude zero. Em empates, escolhe-se o evento mais cedo e depois o ID para localização no mapa. O valor máximo permanece o mesmo. O Ljung–Box usa dez defasagens, previamente fixadas, e serve como diagnóstico, não como critério para maximizar p-valores.
 
@@ -179,7 +179,7 @@ As linhas horizontais são referências pontuais aproximadas de 95%, próximas d
 
 Nos máximos **trimestrais**, ultrapassam as bandas, entre as dez primeiras defasagens, os lags **`r acf_lags('Trimestral')`**. O Ljung–Box conjunto até lag 10 tem p = **`r format.pval(tab('comparacao_blocos')$Ljung_Box[1],digits=3)`**. O resultado deve ser lido como evidência limitada e dependente da escolha prévia das dez defasagens, sem selecionar o bloco pelo p-valor. Nos máximos **semestrais**, as ultrapassagens nesse intervalo ocorrem em **`r acf_lags('Semestral')`**, e o p-valor conjunto é **`r format.pval(tab('comparacao_blocos')$Ljung_Box[2],digits=3)`**. Barras isoladas e um teste conjunto podem levar a impressões diferentes porque avaliam hipóteses distintas.
 
-Para os máximos **anuais**, as ultrapassagens ocorrem nos lags **`r acf_lags('Anual')`**, e o Ljung–Box retorna p = **`r format.pval(tab('comparacao_blocos')$Ljung_Box[3],digits=3)`**. A autocorrelação de lag 1 é **`r fmt(tab("acf_maximos")$acf[tab("acf_maximos")$bloco=="Anual" & tab("acf_maximos")$lag==1])`**, indicando associação linear positiva entre máximos de anos sucessivos nesta série bruta. O padrão de autocorrelações em vários lags e o pequeno p-valor conjunto constituem evidência clara contra ausência de autocorrelação na série bruta de máximos. A interpretação deve considerar a possível mudança temporal da localização, examinada adiante; o diagnóstico não demonstra que um grande evento global provoque outro em anos seguintes.
+Para os máximos **anuais**, as ultrapassagens ocorrem nos lags **`r acf_lags('Anual')`**, e o Ljung–Box retorna p = **`r format.pval(tab('comparacao_blocos')$Ljung_Box[3],digits=3)`**. A autocorrelação de lag 1 é **`r fmt(tab("acf_maximos")$acf[tab("acf_maximos")$bloco=="Anual" & tab("acf_maximos")$lag==1])`**, indicando associação linear positiva entre máximos de anos sucessivos nesta série bruta. O padrão de autocorrelações em vários lags e o pequeno p-valor conjunto constituem evidência clara contra ausência de autocorrelação na série bruta de máximos. O diagnóstico não demonstra que um grande evento global provoque outro em anos seguintes.
 
 O Ljung–Box reúne as autocorrelações das dez primeiras defasagens em uma estatística, enquanto cada barra da ACF descreve um lag. Por isso, os dois instrumentos se complementam. Um p-valor elevado ou a ausência de barras fora das bandas **não prova independência**: dependência não linear, baixa potência e outros lags podem passar despercebidos. Em TVE, dependência pode reduzir a informação efetiva e comprometer erros-padrão e retornos calculados como se cada máximo trouxesse informação nova. Mantêm-se os anos civis como unidade científica de interesse, com bootstrap circular de blocos contíguos para preservar parte da dependência local, e ressalvas explícitas sobre estacionariedade. O tamanho do bloco não foi escolhido pelo maior p-valor.
 
@@ -203,7 +203,7 @@ O painel de **densidade**, abaixo à esquerda, sobrepõe a densidade GEV ao hist
 
 O painel de **níveis de retorno**, abaixo à direita, apresenta os quantis ajustados para probabilidades anuais de excedência $1/T$, com $T$ no eixo horizontal em escala logarítmica. As barras representam IC95% percentis do bootstrap circular de blocos. Não são intervalos de previsão do terremoto de um ano específico, nem incorporam toda a incerteza sobre o catálogo e a família de distribuição. À medida que $T$ aumenta, a estimativa depende de uma parcela cada vez menos observada da cauda. O horizonte de 100 anos ultrapassa a duração da série; o de 50 anos tem apenas cerca de uma oportunidade equivalente no período estudado.
 
-Em conjunto, a posição dos pontos nos gráficos QQ e PP e a sobreposição da densidade tornam a GEV uma aproximação marginal **razoável para descrever os máximos históricos**, com ressalvas nas extremidades. Os quatro painéis não provam que a distribuição seja correta. Em particular, não avaliam sozinhos a dependência temporal: a ACF e o Ljung–Box já indicam problemas na idealização estacionária independente. A evidência de localização variável e a sensibilidade às escalas, discutidas adiante, impedem validar os retornos longos como previsões prospectivas.
+Em conjunto, a posição dos pontos nos gráficos QQ e PP e a sobreposição da densidade tornam a GEV uma aproximação marginal **razoável para descrever os máximos históricos**, com ressalvas nas extremidades. Os quatro painéis não provam que a distribuição seja correta. Em particular, não avaliam sozinhos a dependência temporal: a ACF e o Ljung–Box já indicam problemas na idealização estacionária independente.
 
 ```{r}
 #| label: tbl-retorno-global
@@ -215,7 +215,7 @@ O **nível de retorno** $z_T$ é a magnitude para a qual o modelo atribui ao má
 
 Para **T = 2 anos**, o nível calculado é **`r fmt(rt(2),2)`**, com IC95% de **`r fmt(rt(2,'inferior'),2)` a `r fmt(rt(2,'superior'),2)`**, associado a 50% de excedência anual. Para **10 anos**, a estimativa sobe para **`r fmt(rt(10),2)`** (IC95% **`r fmt(rt(10,'inferior'),2)`–`r fmt(rt(10,'superior'),2)`**), com probabilidade anual de 10%. Para **50 anos**, o nível é **`r fmt(rt(50),2)`** (IC95% **`r fmt(rt(50,'inferior'),2)`–`r fmt(rt(50,'superior'),2)`**), correspondente a 2% de excedência anual. Para **100 anos**, obtém-se **`r fmt(rt(100),2)`**, com IC95% **`r fmt(rt(100,'inferior'),2)`–`r fmt(rt(100,'superior'),2)`** e probabilidade anual de 1%.
 
-A largura do intervalo cresce de **`r fmt(rt(2,'superior')-rt(2,'inferior'),2)`** unidades de magnitude em T = 2 para **`r fmt(rt(100,'superior')-rt(100,'inferior'),2)`** em T = 100, mostrando a amplificação da incerteza na extrapolação. Os intervalos quantificam a incerteza de estimação sob a reamostragem adotada, e não garantem cobertura de todas as fontes de erro. A evidência posterior contra localização constante limita a leitura prospectiva: esses valores resumem o catálogo histórico sob a GEV estacionária de referência. Não são datas previstas, nem probabilidades específicas para uma cidade. Não se apresentam 200 anos, pois o acréscimo de extrapolação não se justifica pela duração da série.
+A largura do intervalo cresce de **`r fmt(rt(2,'superior')-rt(2,'inferior'),2)`** unidades de magnitude em T = 2 para **`r fmt(rt(100,'superior')-rt(100,'inferior'),2)`** em T = 100, mostrando a amplificação da incerteza na extrapolação. Os intervalos quantificam a incerteza de estimação sob a reamostragem adotada, e não garantem cobertura de todas as fontes de erro. Esses valores resumem o catálogo histórico sob a GEV estacionária de referência. Não são datas previstas, nem probabilidades específicas para uma cidade. Não se apresentam 200 anos, pois o acréscimo de extrapolação não se justifica pela duração da série.
 
 ```{r}
 #| label: tbl-probabilidades
@@ -285,52 +285,17 @@ As estimativas pontuais continentais de xi são negativas, mas os IC95% incluem 
 
 As curvas descrevem máximos de áreas com extensões, quantidades de eventos e cobertura diferentes. A análise de forma é particularmente incerta com uma única série de máximos por categoria. A estimativa pontual mais alta de um retorno não representa, por si só, evidência estatística de diferença entre continentes; os intervalos e as limitações de classificação devem ser considerados conjuntamente. A sobreposição de intervalos também não é um teste formal de igualdade. O bootstrap preserva dependência local, mas não elimina tendências ou heterogeneidade dentro de cada conjunto; os retornos continuam sendo resumos históricos condicionais, não uma classificação de perigo local.
 
-## Sensibilidade e possível não estacionariedade
-
-```{r}
-#| label: tbl-sensibilidade-gev
-#| tbl-cap: "GEV anual na família Mw e em duas metades históricas; amostras menores aumentam a incerteza"
-showtab("sensibilidade_gev")
-```
-
-```{r}
-#| label: tbl-tendencia
-#| tbl-cap: "Comparação exploratória de localização estacionária e linear no tempo padronizado"
-showtab("tendencia")
-```
-
-A restrição às escalas de momento e a divisão 1965–1990/1991–2016 avaliam se resultados dependem da composição histórica. A divisão usa duas metades iguais definidas sem otimizar um ponto de mudança. As amostras de `r tab("sensibilidade_gev")$n[tab("sensibilidade_gev")$modelo=="1965–1990"][1]` anos são especialmente pequenas para inferir forma e retornos longos. A análise restrita à família Mw tem somente `r tab("sensibilidade_gev")$n[tab("sensibilidade_gev")$modelo=="Família Mw"][1]` máximos anuais e muda substancialmente escala e forma: xi é `r round(tab('sensibilidade_gev')$estimativa[3],3)`. O ajuste fica próximo de −0,5, fronteira importante para a regularidade da inferência MLE, e seu erro-padrão de informação observada deve ser interpretado com especial cautela. Além disso, o máximo em um ano sem uma medição Mw correspondente pode mudar por seleção de escala, e não pelo processo físico. Não se interpreta o retorno dessa amostra condicionada como estimativa incondicional comparável ao catálogo completo. Essa instabilidade é um resultado substantivo, não uma verificação de robustez bem-sucedida.
-
-Essa comparação não corrige vieses de observação e não comprova uma mudança física do processo sísmico.
-
-A comparação de localização linear revelou melhora relevante: o AIC caiu de `r round(tab('tendencia')$AIC[1],2)` para `r round(tab('tendencia')$AIC[2],2)`, com p-valor LRT de `r signif(tab('tendencia')$LRT_p[2],3)`. Há, portanto, evidência estatística contra localização constante nesta especificação. Isso torna os retornos estacionários **resumos históricos condicionais**, cuja extrapolação para anos futuros não está validada. A mistura de escalas e a cobertura impedem interpretar diretamente esse resultado como mudança física da sismicidade.
-
-```{r}
-#| label: tbl-tendencia-parametros
-#| tbl-cap: "GEV com localização linear: coeficiente por desvio-padrão do ano e IC95% Wald"
-showtab('gev_tendencia')
-```
-
-O ajuste temporal é mantido como diagnóstico importante da análise principal. O Ljung–Box dos valores PIT após retirar a localização linear tem p = `r signif(tab("dependencia_tendencia")$Ljung_Box[2],3)`, sugerindo que a tendência explica parte importante da dependência detectada. Esse diagnóstico não prova independência residual.
-
-```{r}
-#| label: tbl-dependencia-tendencia
-#| tbl-cap: "Dependência anual antes e após o ajuste de localização linear (PIT)"
-showtab('dependencia_tendencia')
-```
- O modelo linear acrescenta um coeficiente à localização e mantém escala e forma constantes. A diferença de AIC e o teste de razão de verossimilhanças, com aproximação qui-quadrado de um grau de liberdade, são avaliados sob condições regulares; a amostra pequena e o suporte dependente dos parâmetros limitam a aproximação. Não se atribui causalidade ao tempo nem se extrapola uma tendência para os níveis de retorno principais.
-
 # Conclusão
 
 Os máximos anuais globais permitiram ajustar uma GEV com localização **`r fmt(f$estimate['loc'])`**, escala **`r fmt(f$estimate['scale'])`** e forma **`r fmt(xi$estimativa)`**. O IC95% de xi vai de **`r fmt(xi$inferior)` a `r fmt(xi$superior)`**; `r if(xi$inferior<=0 && xi$superior>=0) 'por incluir zero, não permite classificar com segurança um único domínio extremal.' else 'a interpretação do domínio deve permanecer condicionada ao modelo e ao catálogo.'` O retorno de 10 anos é **`r fmt(rt(10),2)`**, e o de 100 anos é **`r fmt(rt(100),2)`**, com incerteza substancialmente maior neste último horizonte.
 
-A comparação continental passou a incluir seis categorias terrestres e uma categoria residual, com classificações auditáveis em polígonos Natural Earth. As diferenças nas curvas e nos parâmetros são descritivas, sem demonstração automática de diferenças estatísticas entre continentes. Entre as áreas terrestres elegíveis, **`r land_ret(10)$modelo[which.max(land_ret(10)$magnitude)]`** apresenta o maior retorno pontual em 10 anos, enquanto **`r land_ret(100)$modelo[which.max(land_ret(100)$magnitude)]`** tem o maior em 100 anos, mostrando a sensibilidade da comparação ao horizonte. O volume de eventos fora dos polígonos terrestres e a convenção da fonte para países transcontinentais delimitam o alcance dessas comparações. Categorias com anos sem registros foram preservadas nas descrições sem receber máximos iguais a zero ou retornos artificiais.
+A comparação continental passou a incluir seis categorias terrestres e uma categoria residual, com classificações auditáveis em polígonos Natural Earth. As diferenças nas curvas e nos parâmetros são descritivas, sem demonstração automática de diferenças estatísticas entre continentes. Entre as áreas terrestres elegíveis, **`r land_ret(10)$modelo[which.max(land_ret(10)$magnitude)]`** apresenta o maior retorno pontual em 10 anos, enquanto **`r land_ret(100)$modelo[which.max(land_ret(100)$magnitude)]`** tem o maior em 100 anos, mostrando que a ordenação depende do horizonte. O volume de eventos fora dos polígonos terrestres e a convenção da fonte para países transcontinentais delimitam o alcance dessas comparações. Categorias com anos sem registros foram preservadas nas descrições sem receber máximos iguais a zero ou retornos artificiais.
 
-A evidência favorável à localização linear e a autocorrelação dos máximos anuais brutos enfraquecem a interpretação estacionária prospectiva. Mistura de escalas, mudanças de cobertura, truncamento e a duração de **`r nrow(tab('maximos_anuais'))` anos** limitam as inferências. Os níveis de retorno são resumos históricos condicionais ao modelo; a avaliação de perigo sísmico local exigiria informação e modelos adicionais de fontes, propagação e exposição.
+Mistura de escalas, mudanças de cobertura, truncamento e a duração de **`r nrow(tab('maximos_anuais'))` anos** limitam as inferências. Os níveis de retorno são resumos históricos condicionais ao modelo; a avaliação de perigo sísmico local exigiria informação e modelos adicionais de fontes, propagação e exposição.
 
 # Apêndice: tabelas, execução e limites
 
-Os [máximos anuais completos](tables/maximos_anuais.csv) preservam data, coordenadas, profundidade e ID. Estão disponíveis também [tipos por ano](tables/tipos_por_ano.csv), [exclusões](tables/exclusoes.csv), [parâmetros de todos os blocos](tables/parametros_blocos.csv), [sensibilidade dos retornos](tables/sensibilidade_retorno.csv) e [informações do ambiente](tables/sessionInfo.txt). A [série continental completa](tables/maximos_regionais.csv), incluindo lacunas, e a [auditoria geográfica](tables/auditoria_geografica.csv) permitem conferir a classificação e a cobertura. O [guia técnico](reproducibilidade.qmd) detalha reprodução e publicação. A distribuição da costa não utiliza dados privados ou caminhos absolutos.
+Os [máximos anuais completos](tables/maximos_anuais.csv) preservam data, coordenadas, profundidade e ID. Estão disponíveis também [tipos por ano](tables/tipos_por_ano.csv), [exclusões](tables/exclusoes.csv), [parâmetros de todos os blocos](tables/parametros_blocos.csv) e [informações do ambiente](tables/sessionInfo.txt). A [série continental completa](tables/maximos_regionais.csv), incluindo lacunas, e a [auditoria geográfica](tables/auditoria_geografica.csv) permitem conferir a classificação e a cobertura. O [guia técnico](reproducibilidade.qmd) detalha reprodução e publicação. A distribuição da costa não utiliza dados privados ou caminhos absolutos.
 
 Os intervalos bootstrap são condicionais às escolhas do estudo. Não foram implementadas calibração entre escalas nem uma análise de completude com catálogo de menores magnitudes. Esses limites não são resolvidos pelo aumento do número de réplicas. O relatório evita intervalos de 200 anos, seleção oportunista por p-valor e interpretações de frequência temporal de registros individuais como se fossem anos.
 

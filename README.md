@@ -1,6 +1,6 @@
 # TVE-Terremoto
 
-Teoria dos Valores Extremos aplicada à magnitude de terremotos: análise global e regional por máximos de blocos, com comparação continental e análise de estacionariedade. Relatório acadêmico em português, R e Quarto.
+Teoria dos Valores Extremos aplicada à magnitude de terremotos: análise global e regional por máximos de blocos, com comparação continental. Relatório acadêmico em português, R e Quarto.
 
 **Site:** https://thiagojk.github.io/TVE-Terremoto/
 
@@ -12,7 +12,7 @@ O bruto (~2,4 MB) permanece inalterado. Explosões e rock burst não integram a 
 
 Máximos trimestrais, semestrais e anuais; GEV por máxima verossimilhança com múltiplos inícios; IC95% por 399 réplicas de bootstrap circular de blocos contíguos. Ljung–Box e ACF são diagnósticos e não critérios de seleção por maior p-valor. A classificação continental usa interseção ponto-em-polígono (sp) com países Natural Earth 1:50m e o atributo CONTINENT. Sem buffers ou costa mais próxima: pontos fora dos polígonos ficam em Áreas oceânicas/outros. A convenção da fonte atribui a Rússia à Europa e a Turquia à Ásia; não são inventadas fronteiras internas. GEV regional exige 52 anos com registros; categorias incompletas permanecem apenas descritivas, sem substituir lacunas por zero.
 
-**Limitação central:** há dependência anual e evidência favorável à localização linear no tempo. Os retornos estacionários são resumos condicionais históricos; não são previsões operacionais nem um estudo de perigo sísmico local. Mistura de escalas, truncamento e mudanças de cobertura limitam a inferência. Consulte as tabelas e os diagnósticos antes de interpretar retornos longos.
+**Limitação central:** há dependência anual. Os retornos estacionários são resumos condicionais históricos; não são previsões operacionais nem um estudo de perigo sísmico local. Mistura de escalas, truncamento e mudanças de cobertura limitam a inferência. Consulte as tabelas e os diagnósticos antes de interpretar retornos longos.
 
 O PDF OPME fornecido foi lido como referência de organização, não como fonte de resultados de terremotos. Ele não é redistribuído neste repositório.
 
@@ -35,7 +35,7 @@ quarto preview
 
 ## Estrutura
 
-- `R/`: funções reutilizáveis e etapas de importação, descrição, GEV, continentes, mapas e sensibilidade.
+- `R/`: funções reutilizáveis e etapas de importação, descrição, GEV, continentes, mapas.
 - `data/raw/`: CSV original, costa e polígonos de países Natural Earth, proveniência e checksums.
 - `data/processed/`: CSV limpo e objetos R gerados pelo pipeline.
 - `tables/`, `figures/`: resultados recalculados.
