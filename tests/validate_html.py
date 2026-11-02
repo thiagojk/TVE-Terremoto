@@ -35,6 +35,11 @@ assert not any((root/'tables').glob('estavel*'))
 for removed in ['sensibilidade_gev','sensibilidade_retorno','tendencia','gev_tendencia','dependencia_tendencia']:
     assert not (root/'tables'/f'{removed}.csv').exists()
 assert 'Sensibilidade e possível não estacionariedade' not in (root/'relatorio.html').read_text()
+report=(root/'relatorio.html').read_text()
+assert not re.search(r'apêndice|apendice',report,re.I)
+assert not re.search(r'<th\b[^>]*>\s*bootstrap_(?:validos|total)\s*</th>',report,re.I)
+assert all(name in report for name in ['inferior','superior'])
+
 assert not any((root/'figures').glob('*estavel*'))
 assert 'L.circleMarker' in (root/'mapa.html').read_text()
 assert 'Região continental:' in (root/'mapa.html').read_text()

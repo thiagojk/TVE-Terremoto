@@ -16,7 +16,9 @@ filters:
 ```{r}
 tab <- function(n) read.csv(paste0('tables/',n,'.csv'),check.names=FALSE)
 showtab <- function(n,columns=NULL) {
-  x <- tab(n); if(!is.null(columns)) x <- x[,columns,drop=FALSE]
+  x <- tab(n)
+  x <- x[, !names(x) %in% c('bootstrap_validos','bootstrap_total'), drop=FALSE]
+  if(!is.null(columns)) x <- x[,columns,drop=FALSE]
   for(v in intersect(c('Ljung_Box','LRT_p'),names(x))) x[[v]] <- format.pval(x[[v]],digits=3,eps=1e-12)
   knitr::kable(x,digits=3,row.names=FALSE)
 }
@@ -373,12 +375,6 @@ A contribuição estatística do trabalho está na articulação entre a auditor
 Mistura de escalas, mudanças de cobertura, truncamento e a duração de **`r nrow(tab('maximos_anuais'))` anos** limitam as inferências. Os níveis de retorno são resumos históricos condicionais ao modelo; a avaliação de perigo sísmico local exigiria informação e modelos adicionais de fontes, propagação e exposição.
 
 Como desenvolvimento futuro, seria pertinente examinar catálogos com melhor documentação de completude e comparabilidade de magnitudes, bem como regionalizações sismotectônicas com cobertura suficiente. Essas possibilidades exigiriam nova preparação de dados e avaliação metodológica; não foram executadas nem utilizadas para sustentar as conclusões aqui apresentadas. No escopo atual, a resposta à pergunta de pesquisa é descritiva e condicionada ao catálogo: as magnitudes extremas admitem uma síntese GEV com incerteza relevante, e as comparações geográficas precisam acompanhar os limites da amostragem e da definição das áreas.
-
-# Apêndice: tabelas, execução e limites
-
-Os [máximos anuais completos](tables/maximos_anuais.csv) preservam data, coordenadas, profundidade e ID. Estão disponíveis também [tipos por ano](tables/tipos_por_ano.csv), [exclusões](tables/exclusoes.csv), [parâmetros de todos os blocos](tables/parametros_blocos.csv) e [informações do ambiente](tables/sessionInfo.txt). A [série continental completa](tables/maximos_regionais.csv), incluindo lacunas, e a [auditoria geográfica](tables/auditoria_geografica.csv) permitem conferir a classificação e a cobertura. O [guia técnico](reproducibilidade.qmd) detalha reprodução e publicação. A distribuição da costa não utiliza dados privados ou caminhos absolutos.
-
-Os intervalos bootstrap são condicionais às escolhas do estudo. Não foram implementadas calibração entre escalas nem uma análise de completude com catálogo de menores magnitudes. Esses limites não são resolvidos pelo aumento do número de réplicas. O relatório evita intervalos de 200 anos, seleção oportunista por p-valor e interpretações de frequência temporal de registros individuais como se fossem anos.
 
 # Referências
 

@@ -20,6 +20,10 @@ with ZipFile(p) as z:
     assert 'Teoria dos Valores Extremos' in text
     assert 'United States Geological Survey' in text
     assert 'Conclusão' in text and 'Referências' in text
+    assert not re.search(r'apêndice|apendice',text,re.I)
+    assert not any(name in text for name in ['bootstrap_validos','bootstrap_total'])
+    assert all(name in text for name in ['inferior','superior'])
+
     assert len(doc.findall('.//w:tbl',ns))>=14,'Tabelas perderam estrutura nativa'
     assert len(doc.findall('.//m:oMath',ns))>=2,'Equações não foram preservadas em matemática nativa'
     media=[n for n in z.namelist() if n.startswith('word/media/')]
