@@ -33,6 +33,7 @@ jobs:
           python3 tests/validate_inputs.py
           python3 tests/validate_html.py
           python3 tests/validate_docx.py
+          python3 tests/validate_bibliography.py
       - uses: actions/upload-pages-artifact@v3
         with:
           path: docs

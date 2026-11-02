@@ -15,7 +15,7 @@ for p in root.rglob('*.html'):
     h=Links();text=p.read_text();h.feed(text);parsed[p]=h
     assert 'citation not found' not in text.lower(),p
     if p.parent==root:
-        assert not re.search(r'\b(?:POT|GPD)\b|Flinn|Gardner|ObsPy|declustering|thresholds|α.estáve|alfa.estáve|Nolan|McCulloch|estavel_|stabledist|fBasics',text,re.I),p
+        assert not re.search(r'\b(?:POT|GPD)\b|Flinn|Gardner|ObsPy|declustering|thresholds|Carlos|OPME|α.estáve|alfa.estáve|Nolan|McCulloch|estavel_|stabledist|fBasics',text,re.I),p
 for p,h in parsed.items():
     for ref in h.links:
         u=urlsplit(ref)

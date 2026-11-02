@@ -43,34 +43,103 @@ xi_land <- xi_land[xi_land$parametro=='xi' & xi_land$modelo!='Áreas oceânicas/
 
 # Introdução e objetivos
 
-A magnitude caracteriza o tamanho de um terremoto por meio de medidas instrumentais que dependem da escala empregada. A sucessão de eventos no catálogo não constitui uma amostra simples de observações independentes: sequências sísmicas, mudanças na instrumentação e diferenças de cobertura afetam a interpretação. A Teoria dos Valores Extremos (TVE) oferece aproximações para a cauda superior, mas não elimina essas dificuldades [@coles2001; @embrechts1997].
+O estudo estatístico de magnitudes de terremotos envolve duas perguntas distintas: como se distribuem os eventos mais frequentes e como se comportam os eventos situados na extremidade superior dessa distribuição. A primeira pode ser descrita por medidas de posição e dispersão; a segunda exige atenção à frequência de ocorrências elevadas e à incerteza de quantis pouco observados. Embora média, mediana e variância sejam necessárias à caracterização de um catálogo, elas não determinam, por si sós, a probabilidade de uma magnitude excepcional. Distribuições com comportamentos centrais semelhantes podem atribuir probabilidades muito diferentes à mesma região de cauda [@coles2001; @embrechts1997].
 
-A pergunta central é como se distribuem as magnitudes extremas globais e como esse comportamento varia entre regiões reconhecidas. O objetivo geral é estimar uma GEV para máximos anuais e quantificar a incerteza de níveis de retorno. Especificamente, comparam-se blocos trimestrais, semestrais e anuais, bem como seis continentes e uma categoria residual de áreas oceânicas/outros. Examina-se também a dependência dos máximos. A GEV é o modelo principal dos máximos anuais. A análise é descritiva e probabilística, sem inferência causal ou previsão operacional de terremotos.
+A magnitude é uma medida instrumental do tamanho de um evento, cuja definição depende da escala empregada. O USGS disponibiliza informação sísmica que reúne soluções de diferentes redes e catálogos, com datas, coordenadas, profundidades, magnitudes e metadados de origem [@usgsformat; @neic]. Essa diversidade amplia a cobertura da observação, mas também exige cuidado: um conjunto histórico não constitui automaticamente uma amostra homogênea ao longo do tempo ou do espaço. O recorte de magnitudes, a resolução das medições e a combinação de escalas delimitam as perguntas que podem ser respondidas com os registros disponíveis.
 
-O trabalho anterior `TVE_OPME.pdf`, de Carlos Eduardo Alves de Souza, foi lido integralmente como referência de organização. Sua sequência descritiva, tabela de comparação de blocos, parâmetros e diagnóstico motivou a apresentação. Aqui não se reproduzem a escolha do bloco por p-valor, a transformação logarítmica dos custos, nem os modelos BGEV e misturas Skew-t: a magnitude já é uma medida logarítmica e o problema científico é outro. As limitações de ajuste são discutidas abertamente, como no estudo de referência.
+Neste trabalho, o objeto principal é o máximo de magnitude registrado em cada ano, considerando uma cópia histórica de eventos de 1965 a 2016. Essa escolha transforma uma sequência numerosa e irregular de ocorrências em uma série de máximos com uma unidade temporal explícita. A redução de informação é deliberada: em vez de descrever todos os eventos com uma única distribuição marginal, busca-se representar a variabilidade entre extremos anuais. A Teoria dos Valores Extremos (TVE) fornece o fundamento probabilístico dessa abordagem e uma família de distribuições limite para os máximos [@dehaan2006]. Sua utilização, contudo, não dispensa a avaliação da definição dos blocos, da dependência e da adequação do ajuste.
+
+A dimensão espacial também é relevante. Um máximo global é produzido por eventos distribuídos em áreas de extensões e características distintas, e uma síntese para todo o planeta pode ocultar diferenças entre conjuntos geográficos. A comparação continental oferece uma organização descritiva acessível para examinar essas diferenças, desde que suas fronteiras e limitações sejam explicitadas. Neste estudo, a classificação acompanha polígonos reconhecidos e mantém separadamente os eventos fora deles. Assim, a comparação não pressupõe que os continentes constituam regiões sismotectônicas homogêneas nem atribui a eventos oceânicos um continente por proximidade.
+
+A interpretação dos extremos requer ainda distinguir dependência estatística de causalidade. Eventos sucessivos e mudanças na composição do catálogo podem comprometer uma leitura baseada em observações independentes. Mesmo quando a TVE continua sendo uma aproximação útil, a quantidade efetiva de informação e a incerteza dos parâmetros podem diferir daquelas sugeridas apenas pelo número de registros [@leadbetter1983]. A inspeção da autocorrelação dos máximos e a quantificação da incerteza acompanham, por isso, a estimação das magnitudes extremas.
+
+A pergunta de pesquisa é: **como se comporta a distribuição das magnitudes máximas anuais no catálogo analisado e em que medida sua descrição varia entre os conjuntos continentais definidos?** A contribuição do estudo é organizar uma resposta reproduzível, articulando auditoria dos dados, descrição espacial, ajuste da distribuição Generalizada de Valores Extremos (GEV), diagnósticos e níveis de retorno com incerteza explícita. O alcance é descritivo e probabilístico. Não se pretende prever data ou epicentro de um próximo terremoto, estimar danos ou substituir uma análise de perigo sísmico local.
+
+## Objetivo geral
+
+Investigar o comportamento das magnitudes extremas de terremotos mediante o ajuste de uma GEV aos máximos anuais globais e a comparação descritiva de conjuntos continentais e da categoria oceânica/residual, considerando a cobertura do catálogo, a dependência dos máximos e a incerteza das estimativas.
+
+## Objetivos específicos
+
+Os objetivos específicos correspondem às etapas efetivamente executadas:
+
+- auditar os registros e caracterizar magnitude, profundidade, escalas de magnitude e distribuição temporal;
+- descrever a localização dos eventos e classificá-los por uma regra continental reproduzível, preservando uma categoria residual;
+- construir máximos trimestrais, semestrais e anuais e comparar sua cobertura, dispersão e autocorrelação;
+- estimar os parâmetros de localização, escala e forma da GEV por máxima verossimilhança, com erros-padrão e intervalos bootstrap;
+- avaliar a adequação marginal da GEV pelos gráficos QQ, PP, densidade e níveis de retorno;
+- estimar níveis de retorno e probabilidades de excedência do máximo anual global, respeitando a unidade temporal e os limites da extrapolação;
+- comparar parâmetros e retornos entre categorias geográficas com cobertura suficiente, sem interpretar diferenças pontuais como testes de diferença entre populações.
 
 # Referencial teórico
 
-## Máximos de blocos e GEV
+## Finalidade da Teoria dos Valores Extremos
 
-Para observações em um ano, define-se $M_y=\max_{i:\,ano(i)=y} X_i$. Sob condições de convergência e dependência suficientemente fraca, a distribuição de máximos normalizados converge para a família GEV [@coles2001]:
+A TVE estuda o comportamento das extremidades das distribuições, especialmente quando o interesse recai sobre máximos ou quantis de ordem elevada. Diferentemente de uma descrição concentrada no centro, a análise de cauda procura representar a frequência e a intensidade de observações excepcionalmente grandes em relação ao processo considerado. A raridade é relativa à escala de observação: um valor incomum em uma área pequena pode ser frequente quando se considera todo o planeta [@embrechts1997].
 
-$$
-G(z)=\exp\left\{-\left[1+\xi\frac{z-\mu}{\sigma}\right]^{-1/\xi}\right\},
-\qquad 1+\xi(z-\mu)/\sigma>0,\quad \sigma>0.
-$$
+A passagem da descrição empírica à inferência é particularmente delicada na cauda. À medida que a probabilidade de excedência diminui, menos observações informam diretamente o quantil de interesse. A modelagem fornece uma estrutura para extrapolar, mas transfere parte da conclusão para hipóteses sobre a forma da distribuição. A TVE oferece fundamentos assintóticos para essa estrutura; não assegura que qualquer amostra finita ou definição de bloco já esteja no regime de aproximação adequado [@dehaan2006]. O desenvolvimento a seguir concentra-se nos máximos de blocos, que constituem a abordagem empregada neste relatório.
 
-Quando $\xi\to0$, $G(z)=\exp\{-\exp[-(z-\mu)/\sigma]\}$. Localização $\mu$ e escala $\sigma$ descrevem o centro e a dispersão dos máximos; a forma $\xi$ controla a cauda. Valores positivos correspondem a Fréchet, zero a Gumbel e negativos a Weibull, com limite superior $\mu-\sigma/\xi$. Esse limite é uma propriedade do modelo estatístico, não uma demonstração de limite físico da Terra. Um intervalo que contém zero impede uma classificação segura do domínio extremal.
+## Máximos de blocos e distribuição limite
 
-## Níveis de retorno
-
-Para máximos anuais estacionários, $z_T=G^{-1}(1-1/T)$. Assim,
+Sejam $X_1,\ldots,X_n$ variáveis independentes com distribuição comum $F$, e $M_n=\max(X_1,\ldots,X_n)$. Nesse caso,
 
 $$
-z_T=\mu+\frac{\sigma}{\xi}\{[-\log(1-1/T)]^{-\xi}-1\}.
-$$
+\Pr(M_n\leq x)=F(x)^n.
+$$ {#eq-maximo}
 
-No limite de Gumbel, $z_T=\mu-\sigma\log[-\log(1-1/T)]$. A probabilidade de o máximo anual exceder $z_T$ é $1/T$; isso não significa que eventos sejam igualmente espaçados ou ocorram em uma data prevista. Para blocos de duração $b$ anos, a conversão exigiria $G_b(z)=(1-1/T)^b$ sob independência. As tabelas de retorno dos blocos menores neste projeto permanecem em **unidades de blocos**, evitando uma comparação anual incorreta.
+Essa identidade mostra que a distribuição do máximo depende tanto da distribuição dos eventos individuais quanto do número de oportunidades de ocorrência. Para obter um limite não degenerado quando $n$ cresce, consideram-se constantes $a_n>0$ e $b_n$ e a convergência
+
+$$
+\Pr\left(\frac{M_n-b_n}{a_n}\leq z\right)\longrightarrow G(z).
+$$ {#eq-limite}
+
+Sob as condições do resultado de tipos extremos, as formas possíveis de $G$ pertencem à família GEV [@fishertippett1928; @dehaan2006]. A normalização evita que o limite simplesmente se concentre na extremidade superior de $F$. Na aplicação, ajusta-se a GEV diretamente aos máximos observados; seus parâmetros absorvem a escala e a localização correspondentes à duração dos blocos adotados [@coles2001].
+
+A independência é uma condição de apresentação da identidade @eq-maximo, não uma propriedade automaticamente atribuída ao catálogo. A extensão da teoria a sequências dependentes exige restrições sobre a persistência das ocorrências extremas e sua separação em blocos [@leadbetter1983]. Por isso, aumentar a duração do bloco não demonstra independência. Blocos mais longos podem favorecer a aproximação por uma distribuição de extremos, mas reduzem o número de máximos disponíveis para estimação. A escolha deve considerar a unidade científica de interesse, a cobertura e os diagnósticos, sem selecionar o bloco apenas pelo resultado mais favorável de um teste.
+
+## Distribuição GEV e interpretação dos parâmetros
+
+A função de distribuição da GEV é
+
+$$
+G(z;\mu,\sigma,\xi)=
+\exp\left\{-\left[1+\xi\frac{z-\mu}{\sigma}\right]^{-1/\xi}\right\},
+\qquad \sigma>0,\quad 1+\xi(z-\mu)/\sigma>0,
+$$ {#eq-gev}
+
+para $\xi\neq0$. No limite $\xi\to0$, obtém-se $G(z)=\exp\{-\exp[-(z-\mu)/\sigma]\}$ [@coles2001]. O parâmetro de localização $\mu$ desloca a distribuição dos máximos; ele não é, em geral, a média das magnitudes individuais nem a média dos próprios máximos. A escala $\sigma$ controla a dispersão na unidade original da magnitude. A forma $\xi$ determina o comportamento da cauda e seu suporte.
+
+Para $\xi>0$, a GEV pertence ao tipo Fréchet e apresenta cauda superior de decaimento polinomial. Para $\xi=0$, corresponde ao tipo Gumbel, sem limite superior finito. Para $\xi<0$, corresponde ao tipo Weibull, com extremidade superior $\mu-\sigma/\xi$. Essa classificação se refere ao modelo para máximos, e não à distribuição de todas as magnitudes do catálogo [@dehaan2006]. Em particular, uma estimativa negativa de forma não demonstra um limite físico universal para a magnitude de terremotos: o endpoint depende da adequação do modelo e do conjunto observado.
+
+A classificação deve considerar a incerteza. Quando um intervalo de confiança para $\xi$ contém zero, não é defensável escolher rigidamente um domínio extremal apenas pelo sinal da estimativa pontual. A dificuldade é maior com séries curtas e com poucos eventos determinando a cauda superior. Mesmo intervalos inteiramente de um lado de zero permanecem condicionados às hipóteses de amostragem e à aproximação GEV.
+
+## Estimação, incerteza e dependência
+
+A máxima verossimilhança escolhe os parâmetros que maximizam a densidade conjunta atribuída aos máximos observados, respeitando a escala positiva e o suporte. Na formulação estacionária usual, a mesma tripla $(\mu,\sigma,\xi)$ descreve todos os blocos comparáveis. A verossimilhança marginal com produto de densidades não incorpora automaticamente a dependência entre máximos; erros-padrão baseados na informação observada devem ser interpretados com essa limitação [@coles2001].
+
+A reamostragem de blocos contíguos é uma estratégia para preservar parte da estrutura local de dependência ao avaliar a variabilidade de estimadores [@kunsch1989]. Ela difere de sortear isoladamente cada máximo, procedimento que desfaz a ordem da série. Sua validade também depende de condições sobre o processo e da escolha do comprimento de reamostragem. O intervalo bootstrap não contempla, por construção, todas as incertezas de mensuração, seleção do catálogo ou escolha da família probabilística.
+
+A ACF descreve associações lineares entre valores separados por determinadas defasagens. O teste de Ljung–Box combina autocorrelações de um conjunto de lags em uma estatística de diagnóstico [@ljungbox1978]. A interpretação conjunta desses instrumentos pode revelar incompatibilidades com ausência de autocorrelação, mas não permite concluir independência a partir de um p-valor elevado. No estudo de extremos, essa distinção importa porque a informação trazida por máximos sucessivos pode ser parcialmente redundante.
+
+## Diagnósticos do ajuste
+
+O ajuste deve ser examinado em mais de uma escala. O QQ-plot compara quantis teóricos e observados; desvios persistentes da diagonal, especialmente nos quantis superiores, podem indicar que a forma ajustada não acompanha os extremos. O PP-plot compara probabilidades acumuladas e tende a oferecer melhor resolução visual no corpo da distribuição. A comparação entre histograma e densidade avalia localização e dispersão, mas sua aparência depende do número de máximos e das classes escolhidas [@coles2001].
+
+O gráfico de níveis de retorno traduz os parâmetros em quantis com uma interpretação aplicada. A largura dos intervalos revela parte da incerteza que pode passar despercebida em um QQ aparentemente satisfatório. Nenhum desses gráficos isoladamente valida o modelo, e uma boa aderência marginal não demonstra ausência de dependência. A análise combina essas leituras com a auditoria dos dados e com a duração efetiva da série.
+
+## Níveis de retorno e unidade de interpretação
+
+Para máximos anuais descritos por uma GEV estacionária, o nível de retorno $z_T$ satisfaz $G(z_T)=1-1/T$, para $T>1$. Quando $\xi\neq0$,
+
+$$
+z_T=\mu+\frac{\sigma}{\xi}\left\{[-\log(1-1/T)]^{-\xi}-1\right\}.
+$$ {#eq-retorno}
+
+Para $\xi=0$, usa-se o limite $z_T=\mu-\sigma\log[-\log(1-1/T)]$ [@coles2001]. A probabilidade anual de exceder $z_T$ é $1/T$ no modelo. Sob independência dos indicadores de excedência e probabilidade constante, o tempo de espera tem média $T$ anos; isso não torna as ocorrências periódicas. Essa interpretação adicional do tempo de espera não deve ser transferida sem ressalvas a uma sequência dependente.
+
+O período de retorno sempre acompanha a unidade dos blocos. Nesta análise principal, **$T$ está em anos porque cada observação ajustada é um máximo anual**. Para máximos trimestrais ou semestrais, quantis definidos da mesma forma se referem a números de trimestres ou semestres, respectivamente. Sob independência de blocos de duração $b$ anos, a conversão para uma distribuição anual exigiria $G_b(z)=(1-1/T)^b$ [@coles2001]. As tabelas dos blocos menores são mantidas em unidades de blocos, sem uma conversão anual implícita.
+
+Quanto maior o período de retorno, menor a probabilidade que precisa ser estimada e maior o peso da extrapolação. Um quantil de 100 anos calculado com poucas décadas de máximos depende fortemente dos parâmetros de cauda. Seu intervalo de confiança deve acompanhar a estimativa pontual, e sua aplicação a uma área diferente, a outro catálogo ou a um período futuro requer hipóteses adicionais. Um nível global também não equivale à probabilidade de uma magnitude em um local específico.
 
 # Dados e metodologia
 
@@ -80,7 +149,7 @@ A análise utiliza uma cópia histórica de registros sísmicos de 1965–2016 c
 
 O estudo emprega o arquivo arquivado `Terremoto.csv`; **não realizou uma extração direta do serviço USGS**. Não se dispõe da consulta original nem de seu instante de execução, e não se demonstra equivalência registro a registro com o catálogo atual, que pode ser revisado. A cadeia de distribuição, a documentação consultada e os limites dessa confirmação estão registrados no [guia de procedência](reproducibilidade.qmd#procedencia) e no repositório. O CSV contém data, hora, latitude, longitude, profundidade, magnitude, tipo de magnitude, identificadores, códigos de origem e campos auxiliares de qualidade. A seleção histórica é descrita como eventos com magnitude reportada ≥ 5,5, corte confirmado empiricamente nesta cópia; isso não demonstra completude para todas as magnitudes e épocas. O bruto é preservado, e a análise usa apenas registros `Earthquake`. Explosões nucleares e convencionais e o evento classificado como `Rock Burst` são excluídos pelo tipo, com registro em tabela.
 
-As datas são interpretadas em UTC, no formato mês/dia/ano; as três datas ISO recebem conversão específica, incluindo segundos fracionários. Ano, mês, trimestre, semestre e década são derivados após a conversão. IDs repetidos são auditados e, se existissem, seria preservada a primeira ocorrência. Magnitudes finitas, coordenadas nos limites terrestres, data válida e profundidade finita são exigidas. Profundidade negativa não é removida automaticamente, pois a referência vertical do hipocentro pode produzir valores negativos. O código não interpola magnitudes nem converte escalas sem informação de calibração.
+As datas são interpretadas em UTC, no formato mês/dia/ano; as datas ISO identificadas na auditoria recebem conversão específica, incluindo segundos fracionários. Ano, mês, trimestre, semestre e década são derivados após a conversão. IDs repetidos são auditados e, se existissem, seria preservada a primeira ocorrência. Magnitudes finitas, coordenadas nos limites terrestres, data válida e profundidade finita são exigidas. Profundidade negativa não é removida automaticamente, pois a referência vertical do hipocentro pode produzir valores negativos. O código não interpola magnitudes nem converte escalas sem informação de calibração. A análise utiliza a magnitude na escala registrada, sem uma transformação logarítmica adicional. A profundidade e as coordenadas são preservadas para descrição e identificação dos eventos, não como covariáveis de um modelo de magnitude.
 
 ```{r}
 #| label: tbl-auditoria
@@ -110,9 +179,11 @@ A composição de escalas muda ao longo da série, de modo que a hipótese de co
 
 ## Estimação e incerteza
 
-As estimativas GEV são obtidas por máxima verossimilhança com o pacote `evd` [@stephenson2002]. Para a GEV estacionária são usados três valores iniciais de forma; entre soluções convergentes, retém-se a maior verossimilhança. Erros-padrão vêm da informação observada. Os IC95% reportados são percentis de 399 reamostragens não paramétricas circulares de blocos contíguos de máximos, com semente fixa. Reajustes que falham não recebem valores fictícios; a quantidade de réplicas válidas é reportada. O comprimento de reamostragem é $\lceil n^{1/3}\rceil$ máximos (quatro para a série anual). Essa escolha preserva dependência local e substitui a reamostragem de anos isolados diante da autocorrelação detectada. Ainda pressupõe estacionariedade aproximada para justificar a reamostragem circular; os intervalos são descritivos e não resolvem mudanças do processo de observação. PWM não foi acrescentado, pois o foco está na estimação MLE com diagnóstico e incerteza, sem multiplicar estimadores sem necessidade.
+A unidade ajustada é o máximo de cada bloco temporal, e não cada terremoto individual. Para cada ano, seleciona-se a maior magnitude entre os registros elegíveis, preservando o evento correspondente para identificação espacial. Esse procedimento é aplicado globalmente e, separadamente, às categorias geográficas elegíveis.
 
-A análise principal usa anos civis, com comparação trimestral e semestral. Blocos vazios são contados no calendário esperado de 1965–2016; não recebem magnitude zero. Em empates, escolhe-se o evento mais cedo e depois o ID para localização no mapa. O valor máximo permanece o mesmo. O Ljung–Box usa dez defasagens, previamente fixadas, e serve como diagnóstico, não como critério para maximizar p-valores.
+As estimativas GEV são obtidas por máxima verossimilhança com o pacote `evd` [@stephenson2002]. Para a GEV estacionária são usados três valores iniciais de forma; entre soluções convergentes, retém-se a maior verossimilhança. Erros-padrão vêm da informação observada. Os IC95% reportados são percentis de 399 reamostragens não paramétricas circulares de blocos contíguos de máximos, com semente fixa. O procedimento permite que um bloco de reamostragem atravesse o final da série e retome seu início; é uma escolha operacional dentro da família de métodos de reamostragem dependente [@kunsch1989], não uma garantia de calibração dos intervalos neste catálogo. Reajustes que falham não recebem valores fictícios; a quantidade de réplicas válidas é reportada. O comprimento de reamostragem é $\lceil n^{1/3}\rceil$ máximos (quatro para a série anual). Essa escolha preserva dependência local e substitui a reamostragem de anos isolados diante da autocorrelação detectada. Ainda pressupõe estacionariedade aproximada para justificar a reamostragem circular; os intervalos são descritivos e não resolvem mudanças do processo de observação. PWM não foi acrescentado, pois o foco está na estimação MLE com diagnóstico e incerteza, sem multiplicar estimadores sem necessidade.
+
+A análise principal usa anos civis, com comparação trimestral e semestral. Blocos vazios são contados no calendário esperado de 1965–2016; não recebem magnitude zero. Em empates, escolhe-se o evento mais cedo e depois o ID para localização no mapa. O valor máximo permanece o mesmo. O Ljung–Box usa dez defasagens, previamente fixadas, e serve como diagnóstico, não como critério para maximizar p-valores [@ljungbox1978]. Não se corrigem os dados para obter um resultado de teste desejado nem se aplicam testes temporais à ordem geográfica dos eventos.
 
 # Resultados e discussão
 
@@ -287,11 +358,21 @@ As curvas descrevem máximos de áreas com extensões, quantidades de eventos e 
 
 # Conclusão
 
+O estudo investigou a distribuição das magnitudes extremas registradas no catálogo por meio de máximos de blocos, com a GEV anual como referência principal. A organização em blocos naturais tornou explícita a unidade dos retornos e permitiu separar a descrição dos eventos individuais da modelagem de seus extremos. A pergunta sobre diferenças geográficas foi examinada com uma classificação reproduzível, sem presumir que áreas de mesma categoria fossem fisicamente homogêneas.
+
 Os máximos anuais globais permitiram ajustar uma GEV com localização **`r fmt(f$estimate['loc'])`**, escala **`r fmt(f$estimate['scale'])`** e forma **`r fmt(xi$estimativa)`**. O IC95% de xi vai de **`r fmt(xi$inferior)` a `r fmt(xi$superior)`**; `r if(xi$inferior<=0 && xi$superior>=0) 'por incluir zero, não permite classificar com segurança um único domínio extremal.' else 'a interpretação do domínio deve permanecer condicionada ao modelo e ao catálogo.'` O retorno de 10 anos é **`r fmt(rt(10),2)`**, e o de 100 anos é **`r fmt(rt(100),2)`**, com incerteza substancialmente maior neste último horizonte.
 
 A comparação continental passou a incluir seis categorias terrestres e uma categoria residual, com classificações auditáveis em polígonos Natural Earth. As diferenças nas curvas e nos parâmetros são descritivas, sem demonstração automática de diferenças estatísticas entre continentes. Entre as áreas terrestres elegíveis, **`r land_ret(10)$modelo[which.max(land_ret(10)$magnitude)]`** apresenta o maior retorno pontual em 10 anos, enquanto **`r land_ret(100)$modelo[which.max(land_ret(100)$magnitude)]`** tem o maior em 100 anos, mostrando que a ordenação depende do horizonte. O volume de eventos fora dos polígonos terrestres e a convenção da fonte para países transcontinentais delimitam o alcance dessas comparações. Categorias com anos sem registros foram preservadas nas descrições sem receber máximos iguais a zero ou retornos artificiais.
 
+Os diagnósticos marginais fornecem uma descrição razoável da posição e da dispersão dos máximos históricos, mas a leitura conjunta com a ACF impõe cautela: a associação entre máximos anuais sucessivos reduz a plausibilidade de tratá-los como informação inteiramente independente. A reamostragem de blocos contíguos preserva parte dessa estrutura local sem eliminar todas as limitações da inferência. A largura crescente dos intervalos de retorno torna especialmente importante distinguir uma síntese histórica de uma previsão operacional.
+
+A comparação continental evidenciou também um limite informativo do recorte espacial. A maior parte dos registros ficou na categoria oceânica/residual; por isso, os máximos terrestres não descrevem automaticamente a sismicidade das zonas oceânicas adjacentes aos continentes. A África permaneceu apenas na análise descritiva em razão dos anos sem registros. Manter essas lacunas, em vez de atribuir magnitude zero ou forçar ajustes, é parte da interpretação dos resultados disponíveis. Além disso, as diferenças pontuais entre curvas não autorizam uma ordenação rígida de perigo, sobretudo diante da sobreposição dos intervalos e da convenção adotada para países transcontinentais.
+
+A contribuição estatística do trabalho está na articulação entre a auditoria do catálogo, a definição verificável dos máximos, a avaliação de dependência e a apresentação de quantis extremos com incerteza. Essas etapas mostram informações que a média das magnitudes individuais não oferece: a variabilidade entre extremos anuais, a imprecisão sobre a forma da cauda e a amplificação da incerteza em horizontes longos. A GEV organiza essa descrição, sem demonstrar um limite físico universal de magnitude.
+
 Mistura de escalas, mudanças de cobertura, truncamento e a duração de **`r nrow(tab('maximos_anuais'))` anos** limitam as inferências. Os níveis de retorno são resumos históricos condicionais ao modelo; a avaliação de perigo sísmico local exigiria informação e modelos adicionais de fontes, propagação e exposição.
+
+Como desenvolvimento futuro, seria pertinente examinar catálogos com melhor documentação de completude e comparabilidade de magnitudes, bem como regionalizações sismotectônicas com cobertura suficiente. Essas possibilidades exigiriam nova preparação de dados e avaliação metodológica; não foram executadas nem utilizadas para sustentar as conclusões aqui apresentadas. No escopo atual, a resposta à pergunta de pesquisa é descritiva e condicionada ao catálogo: as magnitudes extremas admitem uma síntese GEV com incerteza relevante, e as comparações geográficas precisam acompanhar os limites da amostragem e da definição das áreas.
 
 # Apêndice: tabelas, execução e limites
 

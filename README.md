@@ -14,7 +14,6 @@ Máximos trimestrais, semestrais e anuais; GEV por máxima verossimilhança com 
 
 **Limitação central:** há dependência anual. Os retornos estacionários são resumos condicionais históricos; não são previsões operacionais nem um estudo de perigo sísmico local. Mistura de escalas, truncamento e mudanças de cobertura limitam a inferência. Consulte as tabelas e os diagnósticos antes de interpretar retornos longos.
 
-O PDF OPME fornecido foi lido como referência de organização, não como fonte de resultados de terremotos. Ele não é redistribuído neste repositório.
 
 ## Executar localmente
 

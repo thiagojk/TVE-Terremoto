@@ -16,7 +16,7 @@ with ZipFile(p) as z:
     # Visible textual runs avoid XML instruction noise when checking removed prose.
     visible=[''.join(q.itertext()) for q in doc.findall('.//w:t',ns)]
     text=' '.join(visible)
-    assert not re.search(r'(?:α|alfa|alpha)[ -]?estáve|Nolan|McCulloch|stabledist|fBasics',text,re.I)
+    assert not re.search(r'(?:α|alfa|alpha)[ -]?estáve|Nolan|McCulloch|stabledist|fBasics|Carlos|OPME',text,re.I)
     assert 'Teoria dos Valores Extremos' in text
     assert 'United States Geological Survey' in text
     assert 'Conclusão' in text and 'Referências' in text
